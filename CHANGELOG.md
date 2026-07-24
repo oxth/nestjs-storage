@@ -7,15 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.2] - 2026-07-24
+
 ### Added
 
-- Documentation site (VitePress, under `docs/`), deployed to GitHub Pages via `.github/workflows/docs.yml` on every push to `main` and every `v*` release tag.
+- Documentation site (VitePress, under `docs/`), deployed to GitHub Pages via `.github/workflows/docs.yml` on every push to `main`.
 
 ### Changed
 
 - Replaced the custom weekly dependency-update workflow with [Dependabot](.github/dependabot.yml), which opens one pull request per outdated dependency (npm packages and GitHub Actions) instead of one bundled PR for everything.
 - `publish.yml` now commits the tag-derived version bump back to `main` after a successful publish, instead of only setting it in the ephemeral release checkout — `main`'s `package.json` no longer stays stale after a release.
 - Releases are now cut with `pnpm version patch|minor|major`, wired to `preversion` (lint + test gate) and `postversion` (`git push --follow-tags`) hooks — see [Cutting a Release](./CONTRIBUTING.md#cutting-a-release).
+
+### Fixed
+
+- `publish.yml`'s internal `pnpm version` calls now pass `--ignore-scripts`, so the `preversion`/`postversion` hooks above (meant for the local release flow) don't also fire inside CI — the `postversion` `git push` was failing outright on the workflow's detached-HEAD tag checkout, which broke the `v0.1.1` release before it ever reached `npm publish` (nothing was published under that tag; `v0.1.2` is the first release with this fix).
+- `docs.yml` no longer triggers on `v*` tags — GitHub Pages' auto-created environment only allows branch deployments by default, so the tag-triggered run failed with an environment-protection error. The `main`-branch trigger alone already covers every release, since a release always lands a commit there too.
 
 ## [0.1.0] - 2026-07-24
 
@@ -35,5 +42,6 @@ Initial release.
 - `README.md`, `CONTRIBUTING.md`, and `llm.md`/`llm-full.md` (condensed and exhaustive API references).
 - CI: lint/test/build on every push and pull request; a tag-triggered (`v*`) publish workflow authenticated via npm's OIDC Trusted Publisher; a weekly scheduled dependency-update workflow that opens a pull request rather than pushing to `main` directly.
 
-[Unreleased]: https://github.com/oxth/nestjs-storage/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/oxth/nestjs-storage/compare/v0.1.2...HEAD
+[0.1.2]: https://github.com/oxth/nestjs-storage/compare/v0.1.0...v0.1.2
 [0.1.0]: https://github.com/oxth/nestjs-storage/releases/tag/v0.1.0

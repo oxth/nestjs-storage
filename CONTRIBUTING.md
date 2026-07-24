@@ -169,7 +169,7 @@ The [documentation site](https://oxth.github.io/nestjs-storage/) is a [VitePress
 pnpm docs:dev
 ```
 
-[`.github/workflows/docs.yml`](.github/workflows/docs.yml) rebuilds and redeploys it automatically on every push to `main` and every `v*` release tag (or on manual dispatch) — no separate publish step needed. It isn't restricted to commits that touch `docs/**`, so a release always republishes the site even if that particular tag didn't change any docs content. If you're setting this repo up fresh, GitHub Pages needs to be enabled once, manually: repo Settings → Pages → Source: **GitHub Actions**.
+[`.github/workflows/docs.yml`](.github/workflows/docs.yml) rebuilds and redeploys it automatically on every push to `main` (or on manual dispatch) — no separate publish step needed, and it isn't restricted to commits that touch `docs/**`. It deliberately does not trigger on `v*` tags: GitHub Pages' auto-created `github-pages` environment only allows branch deployments by default, and a tag-triggered run fails with an environment-protection error. This isn't a gap in practice — every release already lands a commit on `main` too (via the `pnpm version` `postversion` hook or `publish.yml`'s bump-back step), so the branch trigger alone still redeploys docs on every release. If you're setting this repo up fresh, GitHub Pages needs to be enabled once, manually: repo Settings → Pages → Source: **GitHub Actions**.
 
 When you add or rename a page, update the sidebar in `docs/.vitepress/config.mts` to match.
 

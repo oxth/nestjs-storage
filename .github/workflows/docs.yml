@@ -3,8 +3,12 @@ name: Deploy Docs to GitHub Pages
 on:
   push:
     branches: [main]
-    tags:
-      - 'v*'
+    # No `tags:` trigger: GitHub Pages' auto-created environment only
+    # allows branch deployments by default, so a tag-triggered run fails
+    # with "not allowed to deploy... due to environment protection rules".
+    # Every release already lands a commit on main too (via the
+    # `pnpm version` postversion hook or publish.yml's bump-back step), so
+    # the branch trigger alone still redeploys docs on every release.
   workflow_dispatch: {}
 
 permissions:
