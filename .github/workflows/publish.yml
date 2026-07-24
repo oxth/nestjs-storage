@@ -1,0 +1,49 @@
+name: Publish
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch: {}
+
+permissions:
+  id-token: write # required for npm's OIDC Trusted Publisher auth + provenance
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          registry-url: 'https://registry.npmjs.org'
+          cache: pnpm
+          package-manager-cache: false # never use caching in release builds
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm lint
+
+      - run: pnpm test:cov
+
+      - run: pnpm build
+
+      - name: Set package.json version from the pushed tag
+        if: startsWith(github.ref, 'refs/tags/')
+        run: pnpm version --no-git-tag-version --allow-same-version "${GITHUB_REF_NAME#v}"
+
+      # npm's OIDC "Trusted Publisher" flow (configured on npmjs.com for this
+      # package, pointing at this repo + workflow) needs a recent npm CLI and
+      # `npm publish` itself - it's not implemented by `pnpm publish`. No
+      # NPM_TOKEN secret is used or needed; auth happens via the id-token
+      # permission above.
+      - name: Update npm
+        run: npm install -g npm@latest
+
+      - name: Publish to npm
+        run: npm publish --access public --provenance

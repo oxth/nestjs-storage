@@ -134,6 +134,14 @@ Explain the *why* in the body when it isn't obvious from the subject.
 - [ ] `README.md` is updated if you changed or added public API
 - [ ] New or changed behavior has test coverage, including error paths
 
+## Continuous Integration
+
+Every push to `main` and every pull request runs [`.github/workflows/ci.yml`](.github/workflows/ci.yml): lint, the full test suite with coverage, and the build. A pull request can't be merged with a red check — this is what makes the automated dependency-update PRs (below) safe to land without extra manual verification, and it's what you should expect your own PRs to pass too.
+
+A [scheduled workflow](.github/workflows/dependency-update.yml) runs weekly, bumps `dependencies`/`devDependencies` to latest, and opens a PR with the result — it never pushes to `main` directly. That PR goes through the same CI checks and review as any other.
+
+Publishing to npm ([`.github/workflows/publish.yml`](.github/workflows/publish.yml)) is triggered by pushing a `v*` tag (e.g. `v0.1.0`). The workflow itself sets `package.json`'s `version` to match the tag (`pnpm version --no-git-tag-version`) before publishing — you don't need to bump/commit the version yourself first, just tag and push. Publishing is authenticated via npm's "Trusted Publisher" (OIDC) feature, configured on npmjs.com for this package against this exact repo and workflow file — there is no `NPM_TOKEN` secret. Only maintainers who can push tags can trigger a publish; contributors don't need to do anything to make this work.
+
 ## Reporting Issues
 
 Open an issue at https://github.com/oxth/nestjs-storage/issues, including:

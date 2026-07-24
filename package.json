@@ -4,6 +4,10 @@
   "description": "NestJS storage module with a unified API for Local, S3, R2, GCS, Azure and S3 Compatibility drivers",
   "author": "OxTH",
   "license": "MIT",
+  "packageManager": "pnpm@10.33.4",
+  "engines": {
+    "node": ">=24"
+  },
   "homepage": "https://github.com/oxth/nestjs-storage#readme",
   "repository": {
     "type": "git",
@@ -11,6 +15,9 @@
   },
   "bugs": {
     "url": "https://github.com/oxth/nestjs-storage/issues"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "keywords": [
     "nestjs",
