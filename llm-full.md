@@ -5,15 +5,15 @@ Comprehensive API reference distilled from source. For a condensed version, see 
 ## Package shape
 
 - Public entry: everything below is exported from `@oxth/nestjs-storage` (i.e. `src/index.ts`, re-exporting `constants`, `decorators`, `drivers` (only `LocalDriver`), `guards`, `helpers`, `interceptors`, `interfaces`, `middleware`, `storage.module`, `storage.service`, `strategies`).
-- `S3Driver`/`R2Driver` classes are **not** part of the public entry (only referenced internally by `StorageService`); they exist under `src/drivers/` but aren't re-exported, to keep them out of the eagerly-loaded module graph.
+- `S3Driver`/`R2Driver`/`AzureDriver` classes are **not** part of the public entry (only referenced internally by `StorageService`); they exist under `src/drivers/` but aren't re-exported, to keep them out of the eagerly-loaded module graph.
 - Peer dependency: `@nestjs/common` (`^10.0.0 || ^11.0.0`, required).
 - Regular dependency: `flydrive` (used unconditionally by every disk type, including `local`).
-- Optional peer dependencies (`peerDependenciesMeta.optional: true`): `@aws-sdk/client-s3`, `@aws-sdk/s3-request-presigner` (s3/r2 disks), `@google-cloud/storage` (gcs disks), `@aws-sdk/cloudfront-signer` (CloudFront signed URLs on an s3 disk).
+- Optional peer dependencies (`peerDependenciesMeta.optional: true`): `@aws-sdk/client-s3`, `@aws-sdk/s3-request-presigner` (s3/r2 disks), `@google-cloud/storage` (gcs disks), `@azure/storage-blob` (azure disks), `@aws-sdk/cloudfront-signer` (CloudFront signed URLs on an s3 disk).
 - Requires Node 24+ at runtime (naming strategies use `node:crypto`'s `randomUUIDv7`).
 
 ### Lazy driver loading
 
-`StorageService.init()` (called automatically by `StorageModule`, see below) inspects `options.disks`, collects the distinct `driver` names in use, and only then dynamically `import()`s the corresponding driver module(s) — `./drivers/s3.driver.js` for `s3`, `./drivers/r2.driver.js` for `r2`, `flydrive/drivers/gcs` for `gcs`. `local` (via `LocalDriver`) is always statically imported since it has no heavy third-party dependency. This is why the S3/GCS SDKs can stay optional: a `local`-only config never triggers those imports at all.
+`StorageService.init()` (called automatically by `StorageModule`, see below) inspects `options.disks`, collects the distinct `driver` names in use, and only then dynamically `import()`s the corresponding driver module(s) — `./drivers/s3.driver.js` for `s3`, `./drivers/r2.driver.js` for `r2`, `flydrive/drivers/gcs` for `gcs`, `./drivers/azure.driver.js` for `azure`. `local` (via `LocalDriver`) is always statically imported since it has no heavy third-party dependency. This is why the S3/GCS/Azure SDKs can stay optional: a `local`-only config never triggers those imports at all.
 
 ## `STORAGE_MODULE_OPTIONS`
 
@@ -60,11 +60,11 @@ interface StorageModuleOptions<T extends Record<string, DiskOptions> = Record<st
 }
 
 interface Driver {
-  name: StorageDriver;                              // driver name to register/override, e.g. 'azure' or 'local'
+  name: StorageDriver;                              // driver name to register/override, e.g. 'ftp' or 'local'
   driver: (options: unknown) => DriverContract;      // factory; DriverContract is flydrive's driver interface
 }
 
-type StorageDriver = 'local' | 's3' | 'r2' | 'gcs' | (string & {});
+type StorageDriver = 'local' | 's3' | 'r2' | 'gcs' | 'azure' | (string & {});
 
 interface DiskOptions<T extends StorageDriver = StorageDriver> {
   driver: T;
@@ -73,11 +73,12 @@ interface DiskOptions<T extends StorageDriver = StorageDriver> {
         : T extends 's3'    ? S3DriverOptions
         : T extends 'r2'    ? R2DriverOptions
         : T extends 'gcs'   ? GCSDriverOptions   // from flydrive/drivers/gcs/types
+        : T extends 'azure' ? AzureDriverOptions
         : Record<string, unknown>;
 }
 ```
 
-`drivers` entries are merged over the built-in `{ local, s3, r2, gcs }` map — an entry whose `name` matches a built-in overrides it; any other name registers a new driver you can reference from `disks[x].driver`.
+`drivers` entries are merged over the built-in `{ local, s3, r2, gcs, azure }` map — an entry whose `name` matches a built-in overrides it; any other name registers a new driver you can reference from `disks[x].driver`.
 
 ### `LocalDriverOptions`
 
@@ -116,6 +117,20 @@ type R2DriverOptions = Omit<S3DriverOptions, 'visibility' | 'supportsACL' | 'end
 };
 ```
 `visibility` is always forced to `'private'` and `supportsACL` to `false` by `R2Driver`, regardless of what you pass.
+
+### `AzureDriverOptions`
+
+```ts
+type AzureDriverOptions = {
+  containerName: string;
+  visibility?: ObjectVisibility;  // default: 'private'; used as the return value of getVisibility, no per-blob ACL exists
+  cdnUrl?: string;                // optional custom domain/CDN URL for public URLs
+} & (
+  | { connectionString: string; accountName?: undefined; accountKey?: undefined }
+  | { accountName: string; accountKey: string; connectionString?: undefined }
+);
+```
+Exactly one auth method: `connectionString`, or `accountName` + `accountKey`. Only the `accountName`/`accountKey` form can generate signed URLs (it constructs a `StorageSharedKeyCredential` used to sign SAS tokens); `getSignedUrl`/`getSignedUploadUrl` reject with a plain `Error` if constructed with only a `connectionString`.
 
 ## `StorageService`
 
@@ -233,6 +248,31 @@ class R2Driver extends S3Driver {
 ### GCS
 
 No wrapper class — `StorageService` uses flydrive's `GCSDriver` (`flydrive/drivers/gcs`) directly, constructed with the disk's `config` as-is.
+
+### `AzureDriver` (internal, not exported)
+
+```ts
+class AzureDriver implements DriverContract {
+  constructor(options: AzureDriverOptions);
+  bucket(containerName: string): AzureDriver; // returns a new AzureDriver bound to a different container, same credentials
+}
+```
+No flydrive base class to extend (flydrive has no Azure driver) — implements `DriverContract` directly against `@azure/storage-blob`'s `BlobServiceClient`/`ContainerClient`/`BlockBlobClient`.
+
+- Construction: `connectionString` → `BlobServiceClient.fromConnectionString(...)`; `accountName`/`accountKey` → `new StorageSharedKeyCredential(accountName, accountKey)` + `new BlobServiceClient(https://${accountName}.blob.core.windows.net, credential)`. Either way, `client.getContainerClient(containerName)` is cached on the instance.
+- `get`/`getBytes`: `blockBlobClient.downloadToBuffer()`; `get` decodes the result as UTF-8.
+- `getStream`: `blockBlobClient.download()`, returns `response.readableStreamBody`.
+- `getMetaData`: `blockBlobClient.getProperties()`, mapping `contentLength ?? 0`, `etag ?? ''`, `lastModified ?? new Date()`.
+- `getVisibility`: always returns the configured (constructor) `visibility` — Azure has no per-blob ACL. `setVisibility` is a no-op.
+- `getUrl`: `cdnUrl` set → `new URL(key, cdnUrl).toString()`; otherwise `blockBlobClient.url` (the direct Azure endpoint URL, only publicly fetchable if the container/blob is actually public).
+- `getSignedUrl(key, options?)` / `getSignedUploadUrl(key, options?)`: build a SAS via `generateBlobSASQueryParameters({ containerName, blobName: key, permissions: BlobSASPermissions.parse('r' | 'cw'), expiresOn, contentType?, contentDisposition? }, sharedKeyCredential)`, appended to the blob URL as a query string. `expiresOn` = `Date.now() + parse(options?.expiresIn ?? '30mins') * 1000`. Throws `Error('Signed URLs require the "azure" driver to be configured with accountName/accountKey...')` (as a rejected promise) if constructed with only a `connectionString`.
+- `put`: `Buffer.from(contents)` then `blockBlobClient.uploadData(buffer, { blobHTTPHeaders: {...mapped from WriteOptions} })`.
+- `putStream`: `blockBlobClient.uploadStream(stream, undefined, undefined, { blobHTTPHeaders: {...} })`.
+- `copy`: `destinationBlobClient.syncCopyFromURL(sourceBlobClient.url)` (same-account copy, no polling needed).
+- `move`: `copy()` then `delete(source)`.
+- `delete`: `blockBlobClient.deleteIfExists()`.
+- `deleteAll(prefix)`: normalizes `'/'` to `''`, iterates `containerClient.listBlobsFlat({ prefix })`, `deleteIfExists()` on each.
+- `listAll(prefix, options?)`: normalizes `'/'` to `''`. `options?.recursive` → `containerClient.listBlobsFlat({ prefix }).byPage({ continuationToken }).next()`, maps `segment.blobItems` to `DriveFile`s only (no directories). Otherwise → `containerClient.listBlobsByHierarchy('/', { prefix }).byPage({ continuationToken }).next()`, maps `segment.blobItems` to `DriveFile`s and `segment.blobPrefixes` to `DriveDirectory`s. Only reads a single page per call either way; `paginationToken` in the result is that page's `continuationToken` (pass it back in as `options.paginationToken` to get the next page).
 
 ## Decorators
 

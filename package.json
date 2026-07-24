@@ -76,11 +76,12 @@
     "rxjs": "^7.8.2"
   },
   "peerDependencies": {
-    "@aws-sdk/client-s3": "^3.577.0",
-    "@aws-sdk/cloudfront-signer": "^3.1088.0",
-    "@aws-sdk/s3-request-presigner": "^3.577.0",
-    "@google-cloud/storage": "^7.10.2",
-    "@nestjs/common": "^10.0.0 || ^11.0.0"
+    "@aws-sdk/client-s3": "^3",
+    "@aws-sdk/cloudfront-signer": "^3",
+    "@aws-sdk/s3-request-presigner": "^3",
+    "@azure/storage-blob": "^12",
+    "@google-cloud/storage": "^7",
+    "@nestjs/common": "^10 || ^11"
   },
   "peerDependenciesMeta": {
     "@aws-sdk/client-s3": {
@@ -90,6 +91,9 @@
       "optional": true
     },
     "@aws-sdk/s3-request-presigner": {
+      "optional": true
+    },
+    "@azure/storage-blob": {
       "optional": true
     },
     "@google-cloud/storage": {

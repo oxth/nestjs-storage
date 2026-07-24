@@ -2,6 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 
 import { STORAGE_MODULE_OPTIONS } from './constants';
 import type {
+  AzureDriverOptions,
   FakeDisk,
   FakesConfig,
   LocalDriverOptions,
@@ -28,12 +29,12 @@ import { UuidNamingStrategy } from 'src/strategies';
 
 /**
  * @oxth/nestjs-storage bundles into a single entry point, so a plain
- * top-level `import` of the s3/r2/gcs driver modules would pull in
- * @aws-sdk/client-s3 and @google-cloud/storage for every consumer, even
- * ones that only use the local disk. Resolving them here, lazily, and only
- * for driver names actually present in `disks`, keeps those SDKs truly
- * optional. StorageModule awaits `init()` before handing out the instance,
- * so this only runs once, before any disk is used.
+ * top-level `import` of the s3/r2/gcs/azure driver modules would pull in
+ * @aws-sdk/client-s3, @google-cloud/storage, and @azure/storage-blob for
+ * every consumer, even ones that only use the local disk. Resolving them
+ * here, lazily, and only for driver names actually present in `disks`,
+ * keeps those SDKs truly optional. StorageModule awaits `init()` before
+ * handing out the instance, so this only runs once, before any disk is used.
  */
 @Injectable()
 export class StorageService {
@@ -77,6 +78,12 @@ export class StorageService {
       const { GCSDriver } = await import('flydrive/drivers/gcs');
       defaultDrivers.gcs = (options: GCSDriverOptions) =>
         new GCSDriver(options);
+    }
+
+    if (usedDrivers.has('azure')) {
+      const { AzureDriver } = await import('./drivers/azure.driver.js');
+      defaultDrivers.azure = (options: AzureDriverOptions) =>
+        new AzureDriver(options);
     }
 
     return (this.options.drivers || []).reduce((acc, cur) => {

@@ -296,6 +296,24 @@ describe('StorageService remote driver wiring (construction only)', () => {
     const service = await createService(options);
     expect(() => service.disk('gcs')).not.toThrow();
   });
+
+  it('constructs an azure disk without making network calls', async () => {
+    const options: StorageModuleOptions = {
+      default: 'azure',
+      disks: {
+        azure: {
+          driver: 'azure',
+          config: {
+            containerName: 'test-container',
+            accountName: 'test-account',
+            accountKey: 'dGVzdC1rZXk=',
+          },
+        },
+      },
+    };
+    const service = await createService(options);
+    expect(() => service.disk('azure')).not.toThrow();
+  });
 });
 
 describe('StorageService fake()/restore()', () => {

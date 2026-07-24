@@ -8,7 +8,8 @@ import { DistributiveOmit } from 'src/interfaces/ts-helper';
 import { FakesConfig, NamingStrategy } from 'src/interfaces/storage';
 
 export type CdnProvider = 'cloudfront' | (string & {});
-export type StorageDriver = 'local' | 's3' | 'r2' | 'gcs' | (string & {});
+export type StorageDriver =
+  'local' | 's3' | 'r2' | 'gcs' | 'azure' | (string & {});
 
 export interface Driver {
   name: StorageDriver;
@@ -46,6 +47,25 @@ export type R2DriverOptions = DistributiveOmit<
   region?: S3ClientConfig['region'];
 };
 
+interface AzureDriverBaseOptions {
+  containerName: string;
+  visibility?: ObjectVisibility;
+  /** Optional CDN/custom domain URL to use for public URLs instead of the storage account's own endpoint. */
+  cdnUrl?: string;
+}
+
+export type AzureDriverOptions =
+  | (AzureDriverBaseOptions & {
+      connectionString: string;
+      accountName?: undefined;
+      accountKey?: undefined;
+    })
+  | (AzureDriverBaseOptions & {
+      accountName: string;
+      accountKey: string;
+      connectionString?: undefined;
+    });
+
 export type DiskOptions<T extends StorageDriver = StorageDriver> =
   T extends StorageDriver
     ? {
@@ -59,7 +79,9 @@ export type DiskOptions<T extends StorageDriver = StorageDriver> =
               ? R2DriverOptions
               : T extends 'gcs'
                 ? GCSDriverOptions
-                : Record<string, unknown>;
+                : T extends 'azure'
+                  ? AzureDriverOptions
+                  : Record<string, unknown>;
       }
     : never;
 

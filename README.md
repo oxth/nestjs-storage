@@ -1,6 +1,6 @@
 # @oxth/nestjs-storage
 
-A NestJS storage module with a single, unified API for Local filesystem, S3, Cloudflare R2, Google Cloud Storage, and any S3-compatible service (MinIO, Backblaze B2, DigitalOcean Spaces, Wasabi, ...). Built on top of [flydrive](https://flydrive.dev/).
+A NestJS storage module with a single, unified API for Local filesystem, S3, Cloudflare R2, Google Cloud Storage, Azure Blob Storage, and any S3-compatible service (MinIO, Backblaze B2, DigitalOcean Spaces, Wasabi, ...). Built on top of [flydrive](https://flydrive.dev/).
 
 - One `StorageService` API regardless of which disk(s) you configure
 - Multiple named disks in the same app, with a configurable default
@@ -27,6 +27,9 @@ npm install @aws-sdk/client-s3 @aws-sdk/s3-request-presigner
 
 # only if you configure a gcs disk
 npm install @google-cloud/storage
+
+# only if you configure an azure disk
+npm install @azure/storage-blob
 
 # only if you use CloudFront signed URLs on an s3 disk
 npm install @aws-sdk/cloudfront-signer
@@ -128,6 +131,7 @@ Every entry under `disks` has a `driver` name and a driver-specific `config`. Th
 | `s3`    | `{ bucket, region, credentials, cdn?, ... }`    | Also covers MinIO, B2, DigitalOcean Spaces, Wasabi via `endpoint`.    |
 | `r2`    | `{ bucket, endpoint, credentials, region? }`    | Cloudflare R2 — same as `s3` with the right defaults baked in.        |
 | `gcs`   | `{ bucket, ... }`                               | Google Cloud Storage.                                                 |
+| `azure` | `{ containerName, accountName, accountKey }` or `{ containerName, connectionString }` | Azure Blob Storage. |
 
 ### Local
 
@@ -219,6 +223,25 @@ disks: {
 },
 ```
 
+### Azure
+
+```ts
+disks: {
+  azure: {
+    driver: 'azure',
+    config: {
+      containerName: 'my-container',
+      accountName: 'mystorageaccount',
+      accountKey: process.env.AZURE_STORAGE_ACCOUNT_KEY,
+      // or, instead of accountName/accountKey:
+      // connectionString: process.env.AZURE_STORAGE_CONNECTION_STRING,
+    },
+  },
+},
+```
+
+`getSignedUrl`/`getSignedUploadUrl` generate a SAS token and require `accountName`/`accountKey` — a `connectionString` alone can construct the client but can't sign a SAS, and calling either of those methods without shared-key credentials rejects with a clear error. `getVisibility`/`setVisibility` are a no-op pass-through/read of the configured `visibility` (Azure has no per-blob ACL; visibility is a container-level setting). Optionally set `cdnUrl` to serve public URLs through a CDN/custom domain instead of the storage account's own endpoint.
+
 ### Multiple disks
 
 Configure as many disks as you need and pick one per call:
@@ -245,15 +268,15 @@ await storage.disk().put('avatar.png', buffer); // uses the default disk
 
 ### Custom drivers
 
-Register your own driver factory (e.g. for Azure Blob Storage) under `drivers`, then reference it by name from a disk:
+Register your own driver factory under `drivers`, then reference it by name from a disk:
 
 ```ts
 StorageModule.forRoot({
-  default: 'azure',
+  default: 'ftp',
   disks: {
-    azure: { driver: 'azure', config: { /* your own shape */ } },
+    ftp: { driver: 'ftp', config: { /* your own shape */ } },
   },
-  drivers: [{ name: 'azure', driver: (config) => new MyAzureDriver(config) }],
+  drivers: [{ name: 'ftp', driver: (config) => new MyFtpDriver(config) }],
 });
 ```
 

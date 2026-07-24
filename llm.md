@@ -1,6 +1,6 @@
 # @oxth/nestjs-storage — quick reference
 
-NestJS storage module. One `StorageService` API for Local filesystem, S3, Cloudflare R2, Google Cloud Storage, and any S3-compatible service (MinIO, B2, DigitalOcean Spaces, Wasabi — configure as `s3` with a custom `endpoint`). Built on [flydrive](https://flydrive.dev/).
+NestJS storage module. One `StorageService` API for Local filesystem, S3, Cloudflare R2, Google Cloud Storage, Azure Blob Storage, and any S3-compatible service (MinIO, B2, DigitalOcean Spaces, Wasabi — configure as `s3` with a custom `endpoint`). Built on [flydrive](https://flydrive.dev/).
 
 For full type signatures and behavior detail, see `llm-full.md`.
 
@@ -10,7 +10,7 @@ For full type signatures and behavior detail, see `llm-full.md`.
 npm install @oxth/nestjs-storage
 ```
 
-`@nestjs/common` is a required peer dependency. `flydrive` is a regular dependency. `@aws-sdk/client-s3` + `@aws-sdk/s3-request-presigner` (for `s3`/`r2` disks), `@google-cloud/storage` (for `gcs` disks), and `@aws-sdk/cloudfront-signer` (for CloudFront signed URLs) are **optional peer dependencies** — install only the ones matching the disk(s) you configure. A `local`-only app needs none of them.
+`@nestjs/common` is a required peer dependency. `flydrive` is a regular dependency. `@aws-sdk/client-s3` + `@aws-sdk/s3-request-presigner` (for `s3`/`r2` disks), `@google-cloud/storage` (for `gcs` disks), `@azure/storage-blob` (for `azure` disks), and `@aws-sdk/cloudfront-signer` (for CloudFront signed URLs) are **optional peer dependencies** — install only the ones matching the disk(s) you configure. A `local`-only app needs none of them.
 
 ## Register the module
 
@@ -25,6 +25,7 @@ StorageModule.forRoot({
     s3: { driver: 's3', config: { bucket: '...', region: '...', credentials: { accessKeyId: '...', secretAccessKey: '...' } } },
     r2: { driver: 'r2', config: { bucket: '...', endpoint: '...', credentials: { accessKeyId: '...', secretAccessKey: '...' } } },
     gcs: { driver: 'gcs', config: { bucket: '...' } },
+    azure: { driver: 'azure', config: { containerName: '...', accountName: '...', accountKey: '...' } },
   },
 });
 ```
@@ -107,3 +108,4 @@ storage.restore('local');
 - Constructing `StorageService` manually (outside Nest DI) requires `await service.init()` before use — `StorageModule` does this for you.
 - `StorageFileInterceptor` (singular) puts the result on `req.file`; the other three put it on `req.files`.
 - MinIO/B2/DigitalOcean Spaces/Wasabi are not separate driver names — configure them as `driver: 's3'` with the provider's `endpoint`.
+- Azure `getSignedUrl`/`getSignedUploadUrl` need `accountName`/`accountKey`; a `connectionString`-only config can read/write but can't sign a SAS and rejects if you try.
