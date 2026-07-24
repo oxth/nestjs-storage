@@ -1,11 +1,14 @@
-import { Injectable, NestMiddleware } from '@nestjs/common';
+import { Inject, Injectable, NestMiddleware } from '@nestjs/common';
 import { createHmac, timingSafeEqual } from 'node:crypto';
 import { NextFunction, Request, Response } from 'express';
 import { StorageService } from 'src/storage.service';
 
 @Injectable()
 export class LocalSignedUrlMiddleware implements NestMiddleware {
-  constructor(private readonly storageService: StorageService) {}
+  constructor(
+    @Inject(StorageService)
+    private readonly storageService: StorageService,
+  ) {}
 
   use(req: Request, res: Response, next: NextFunction): void {
     const signSecret = this.storageService.getSignSecret();

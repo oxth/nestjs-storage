@@ -5,7 +5,7 @@ import { GCSDriverOptions } from 'flydrive/drivers/gcs/types';
 import { DriverContract, ObjectVisibility } from 'flydrive/types';
 import type { S3ClientConfig } from '@aws-sdk/client-s3';
 import { DistributiveOmit } from 'src/interfaces/ts-helper';
-import { NamingStrategy } from 'src/interfaces/storage';
+import { FakesConfig, NamingStrategy } from 'src/interfaces/storage';
 
 export type CdnProvider = 'cloudfront' | (string & {});
 export type StorageDriver = 'local' | 's3' | 'r2' | 'gcs' | (string & {});
@@ -70,6 +70,11 @@ export interface StorageModuleOptions<
   signSecret?: string;
   disks: T;
   drivers?: Driver[];
+  /**
+   * Configuration used when a disk is faked via StorageService.fake().
+   * Defaults to a temp directory when not provided.
+   */
+  fakes?: FakesConfig;
 }
 
 type ModuleOptions = Promise<StorageModuleOptions> | StorageModuleOptions;

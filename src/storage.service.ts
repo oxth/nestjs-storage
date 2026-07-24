@@ -2,6 +2,8 @@ import { Inject, Injectable } from '@nestjs/common';
 
 import { STORAGE_MODULE_OPTIONS } from './constants';
 import type {
+  FakeDisk,
+  FakesConfig,
   LocalDriverOptions,
   NamingStrategy,
   R2DriverOptions,
@@ -20,6 +22,8 @@ import {
 import { GCSDriverOptions } from 'flydrive/drivers/gcs/types';
 import { Disk, DriveDirectory, DriveFile, DriveManager } from 'flydrive';
 import { Readable } from 'node:stream';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { S3Driver } from 'src/drivers/s3.driver';
 import { LocalDriver } from 'src/drivers/local.driver';
 import { R2Driver } from 'src/drivers/r2.driver';
@@ -67,11 +71,28 @@ export class StorageService {
     return new DriveManager({
       default: options.default,
       services,
+      fakes: options.fakes ?? this.getDefaultFakesConfig(),
     });
+  }
+
+  private getDefaultFakesConfig(): FakesConfig {
+    return { location: join(tmpdir(), 'oxth-nestjs-storage-fakes') };
   }
 
   disk(name?: string): Disk {
     return this.driveManager.use(name);
+  }
+
+  /**
+   * Swap the given disk for an in-memory-friendly fs-backed fake, useful
+   * in tests. Use `restore` to bring back the real disk.
+   */
+  fake(name?: string): FakeDisk {
+    return this.driveManager.fake(name);
+  }
+
+  restore(name?: string): void {
+    this.driveManager.restore(name);
   }
 
   getDefaultDisk(): string {
