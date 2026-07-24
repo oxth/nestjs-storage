@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- Documentation site (VitePress, under `docs/`), deployed to GitHub Pages via `.github/workflows/docs.yml` on every push to `main` and every `v*` release tag.
+
+### Changed
+
+- Replaced the custom weekly dependency-update workflow with [Dependabot](.github/dependabot.yml), which opens one pull request per outdated dependency (npm packages and GitHub Actions) instead of one bundled PR for everything.
+- `publish.yml` now commits the tag-derived version bump back to `main` after a successful publish, instead of only setting it in the ephemeral release checkout — `main`'s `package.json` no longer stays stale after a release.
+- Releases are now cut with `pnpm version patch|minor|major`, wired to `preversion` (lint + test gate) and `postversion` (`git push --follow-tags`) hooks — see [Cutting a Release](./CONTRIBUTING.md#cutting-a-release).
+
 ## [0.1.0] - 2026-07-24
 
 Initial release.

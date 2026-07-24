@@ -1,6 +1,6 @@
 {
   "name": "@oxth/nestjs-storage",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "NestJS storage module with a unified API for Local, S3, R2, GCS, Azure and S3 Compatibility drivers",
   "author": "OxTH",
   "license": "MIT",
@@ -8,7 +8,7 @@
   "engines": {
     "node": ">=24"
   },
-  "homepage": "https://github.com/oxth/nestjs-storage#readme",
+  "homepage": "https://oxth.github.io/nestjs-storage/",
   "repository": {
     "type": "git",
     "url": "https://github.com/oxth/nestjs-storage.git"
@@ -72,7 +72,12 @@
     "test:watch": "vitest",
     "test:cov": "vitest run --coverage",
     "test:debug": "vitest --inspect-brk --no-file-parallelism",
-    "prepublishOnly": "pnpm build"
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs",
+    "prepublishOnly": "pnpm build",
+    "preversion": "pnpm lint && pnpm test:cov",
+    "postversion": "git push --follow-tags"
   },
   "dependencies": {
     "@nestjs/platform-express": "^11.1.28",
@@ -142,6 +147,7 @@
     "tsup": "^8.5.1",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.65.0",
+    "vitepress": "^1.6.4",
     "vitest": "^4.1.10",
     "zod": "^4.4.3"
   }

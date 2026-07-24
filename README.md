@@ -2,6 +2,8 @@
 
 A NestJS storage module with a single, unified API for Local filesystem, S3, Cloudflare R2, Google Cloud Storage, Azure Blob Storage, and any S3-compatible service (MinIO, Backblaze B2, DigitalOcean Spaces, Wasabi, ...). Built on top of [flydrive](https://flydrive.dev/).
 
+**[Full documentation site](https://oxth.github.io/nestjs-storage/)**
+
 - One `StorageService` API regardless of which disk(s) you configure
 - Multiple named disks in the same app, with a configurable default
 - Multer-based upload interceptors that stream files straight to a disk

@@ -1,0 +1,31 @@
+version: 2
+updates:
+  # One pull request per outdated dependency (Dependabot's default when
+  # `groups` isn't set) - dependencies/devDependencies get their own PR
+  # each, so a broken bump only ever affects one PR at a time and is easy
+  # to review/bisect. Every PR runs the normal ci.yml checks before it can
+  # be merged.
+  - package-ecosystem: 'npm' # covers pnpm via pnpm-lock.yaml
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+    open-pull-requests-limit: 20
+    labels:
+      - 'dependencies'
+    commit-message:
+      prefix: 'chore'
+      include: 'scope'
+
+  # Keep the GitHub Actions used in .github/workflows/*.yml up to date too.
+  - package-ecosystem: 'github-actions'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+    labels:
+      - 'dependencies'
+      - 'ci'
+    commit-message:
+      prefix: 'chore'
+      include: 'scope'

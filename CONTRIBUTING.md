@@ -139,11 +139,39 @@ Explain the *why* in the body when it isn't obvious from the subject.
 
 Every push to `main` and every pull request runs [`.github/workflows/ci.yml`](.github/workflows/ci.yml): lint, the full test suite with coverage, and the build. A pull request can't be merged with a red check — this is what makes the automated dependency-update PRs (below) safe to land without extra manual verification, and it's what you should expect your own PRs to pass too.
 
-A [scheduled workflow](.github/workflows/dependency-update.yml) runs weekly, bumps `dependencies`/`devDependencies` to latest, and opens a PR with the result — it never pushes to `main` directly. That PR goes through the same CI checks and review as any other.
+[Dependabot](.github/dependabot.yml) checks weekly and opens one pull request per outdated dependency (both npm packages and the GitHub Actions used in `.github/workflows/*.yml`) — it never pushes to `main` directly. Each of those PRs goes through the same `ci.yml` checks and review as any other; a broken bump only ever affects the one PR for that dependency.
 
-Publishing to npm ([`.github/workflows/publish.yml`](.github/workflows/publish.yml)) is triggered by pushing a `v*` tag (e.g. `v0.1.0`). The workflow itself sets `package.json`'s `version` to match the tag (`pnpm version --no-git-tag-version`) before publishing — you don't need to bump/commit the version yourself first, just tag and push. Publishing is authenticated via npm's "Trusted Publisher" (OIDC) feature, configured on npmjs.com for this package against this exact repo and workflow file — there is no `NPM_TOKEN` secret. Only maintainers who can push tags can trigger a publish; contributors don't need to do anything to make this work.
+Publishing to npm ([`.github/workflows/publish.yml`](.github/workflows/publish.yml)) is triggered by pushing a `v*` tag (e.g. `v0.1.0`) — see [Cutting a Release](#cutting-a-release) below for how to do that. The workflow sets `package.json`'s `version` to match the tag (`pnpm version --no-git-tag-version`) before publishing, so the tag is always the source of truth regardless of what `package.json` said beforehand. After a successful publish, it reapplies that same version bump on top of `main`'s current tip and pushes it directly (not through a PR — this is the one exception to "everything goes through CI/PR review", since it's just a version-field bump derived from the tag you already pushed, not new logic), so the committed `package.json` doesn't stay stale at the pre-release version. Publishing itself is authenticated via npm's "Trusted Publisher" (OIDC) feature, configured on npmjs.com for this package against this exact repo and workflow file — there is no `NPM_TOKEN` secret. Only maintainers who can push tags can trigger a publish; contributors don't need to do anything to make this work.
 
-Before tagging a release, move `CHANGELOG.md`'s `[Unreleased]` entries under a new `## [x.y.z] - YYYY-MM-DD` heading (matching the tag you're about to push) and commit that. The publish workflow does not touch `CHANGELOG.md` for you.
+If `main` ever gets branch protection rules that block direct pushes, the "commit version bump back to main" step in `publish.yml` will start failing — either exempt the Actions bot from that rule, or switch that step to open a PR instead.
+
+## Cutting a Release
+
+1. Move `CHANGELOG.md`'s `[Unreleased]` entries under a new `## [x.y.z] - YYYY-MM-DD` heading and commit that to `main`. The publish workflow does not touch `CHANGELOG.md` for you.
+2. Run:
+   ```bash
+   pnpm version patch   # or: minor / major / an explicit "x.y.z"
+   ```
+   This is npm/pnpm's built-in version command, wired up with two lifecycle hooks in `package.json`:
+   - `preversion` runs `pnpm lint && pnpm test:cov` first — it refuses to bump/tag if either fails
+   - `pnpm version` itself bumps `package.json`, commits it (message is just the new version number), and creates a matching `vX.Y.Z` tag (the `v` prefix is pnpm/npm's default, no config needed)
+   - `postversion` runs `git push --follow-tags`, pushing that commit and tag together
+
+Pushing the tag is what triggers `publish.yml`. You don't need to manually edit `package.json`, commit it, or run `git tag` yourself — `pnpm version <bump>` is the entire release command.
+
+If you ever push a tag some other way (bypassing `pnpm version`), publishing still works exactly the same — the workflow always derives the published version from the tag, not from whatever `package.json` happens to say.
+
+## Documentation Site
+
+The [documentation site](https://oxth.github.io/nestjs-storage/) is a [VitePress](https://vitepress.dev/) site under `docs/`. Preview it locally with:
+
+```bash
+pnpm docs:dev
+```
+
+[`.github/workflows/docs.yml`](.github/workflows/docs.yml) rebuilds and redeploys it automatically on every push to `main` and every `v*` release tag (or on manual dispatch) — no separate publish step needed. It isn't restricted to commits that touch `docs/**`, so a release always republishes the site even if that particular tag didn't change any docs content. If you're setting this repo up fresh, GitHub Pages needs to be enabled once, manually: repo Settings → Pages → Source: **GitHub Actions**.
+
+When you add or rename a page, update the sidebar in `docs/.vitepress/config.mts` to match.
 
 ## Reporting Issues
 
