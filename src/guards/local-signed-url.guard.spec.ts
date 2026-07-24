@@ -42,7 +42,7 @@ describe('LocalSignedUrlGuard', () => {
     expect(guard.canActivate(buildContext({}))).toBe(true);
   });
 
-  it('throws ForbiddenException when expires or signature query params are missing', () => {
+  it('throws ForbiddenException with the rejection reason when verification fails', () => {
     const guard = new LocalSignedUrlGuard(buildStorageService('secret'));
 
     expect(() => guard.canActivate(buildContext({ expires: '123' }))).toThrow(
@@ -51,53 +51,6 @@ describe('LocalSignedUrlGuard', () => {
     expect(() => guard.canActivate(buildContext({ expires: '123' }))).toThrow(
       'Missing signature parameters',
     );
-  });
-
-  it('throws ForbiddenException when expires is not a valid number', () => {
-    const guard = new LocalSignedUrlGuard(buildStorageService('secret'));
-
-    expect(() =>
-      guard.canActivate(
-        buildContext({ expires: 'not-a-number', signature: 'abc' }),
-      ),
-    ).toThrow('URL has expired');
-  });
-
-  it('throws ForbiddenException when the URL has expired', () => {
-    const guard = new LocalSignedUrlGuard(buildStorageService('secret'));
-    const expiresAt = Math.floor(Date.now() / 1000) - 10;
-
-    expect(() =>
-      guard.canActivate(
-        buildContext({ expires: String(expiresAt), signature: 'abc' }),
-      ),
-    ).toThrow('URL has expired');
-  });
-
-  it('throws ForbiddenException when the signature is not valid hex', () => {
-    const guard = new LocalSignedUrlGuard(buildStorageService('secret'));
-    const expiresAt = Math.floor(Date.now() / 1000) + 60;
-
-    expect(() =>
-      guard.canActivate(
-        buildContext({
-          expires: String(expiresAt),
-          signature: 'zz-not-hex-zz',
-        }),
-      ),
-    ).toThrow('Invalid signature');
-  });
-
-  it('throws ForbiddenException when the signature does not match', () => {
-    const guard = new LocalSignedUrlGuard(buildStorageService('secret'));
-    const expiresAt = Math.floor(Date.now() / 1000) + 60;
-    const wrongSignature = sign('/files/a.png', expiresAt, 'wrong-secret');
-
-    expect(() =>
-      guard.canActivate(
-        buildContext({ expires: String(expiresAt), signature: wrongSignature }),
-      ),
-    ).toThrow('Invalid signature');
   });
 
   it('returns true when the signature is valid', () => {

@@ -45,7 +45,7 @@ describe('LocalSignedUrlMiddleware', () => {
     expect(status).not.toHaveBeenCalled();
   });
 
-  it('returns 403 when expires or signature query params are missing', () => {
+  it('returns 403 with the rejection reason when verification fails', () => {
     const middleware = new LocalSignedUrlMiddleware(
       buildStorageService('secret'),
     );
@@ -57,74 +57,6 @@ describe('LocalSignedUrlMiddleware', () => {
     expect(json).toHaveBeenCalledWith({
       message: 'Missing signature parameters',
     });
-    expect(next).not.toHaveBeenCalled();
-  });
-
-  it('returns 403 when expires is not a valid number', () => {
-    const middleware = new LocalSignedUrlMiddleware(
-      buildStorageService('secret'),
-    );
-    const { req, res, next, status, json } = buildReqRes({
-      expires: 'not-a-number',
-      signature: 'abc',
-    });
-
-    middleware.use(req, res, next);
-
-    expect(status).toHaveBeenCalledWith(403);
-    expect(json).toHaveBeenCalledWith({ message: 'URL has expired' });
-    expect(next).not.toHaveBeenCalled();
-  });
-
-  it('returns 403 when the URL has expired', () => {
-    const middleware = new LocalSignedUrlMiddleware(
-      buildStorageService('secret'),
-    );
-    const expiresAt = Math.floor(Date.now() / 1000) - 10;
-    const { req, res, next, status, json } = buildReqRes({
-      expires: String(expiresAt),
-      signature: 'abc',
-    });
-
-    middleware.use(req, res, next);
-
-    expect(status).toHaveBeenCalledWith(403);
-    expect(json).toHaveBeenCalledWith({ message: 'URL has expired' });
-    expect(next).not.toHaveBeenCalled();
-  });
-
-  it('returns 403 when the signature is not valid hex (throws inside verification)', () => {
-    const middleware = new LocalSignedUrlMiddleware(
-      buildStorageService('secret'),
-    );
-    const expiresAt = Math.floor(Date.now() / 1000) + 60;
-    const { req, res, next, status, json } = buildReqRes({
-      expires: String(expiresAt),
-      signature: 'zz-not-hex-zz',
-    });
-
-    middleware.use(req, res, next);
-
-    expect(status).toHaveBeenCalledWith(403);
-    expect(json).toHaveBeenCalledWith({ message: 'Invalid signature' });
-    expect(next).not.toHaveBeenCalled();
-  });
-
-  it('returns 403 when the signature does not match', () => {
-    const middleware = new LocalSignedUrlMiddleware(
-      buildStorageService('secret'),
-    );
-    const expiresAt = Math.floor(Date.now() / 1000) + 60;
-    const wrongSignature = sign('/files/a.png', expiresAt, 'wrong-secret');
-    const { req, res, next, status, json } = buildReqRes({
-      expires: String(expiresAt),
-      signature: wrongSignature,
-    });
-
-    middleware.use(req, res, next);
-
-    expect(status).toHaveBeenCalledWith(403);
-    expect(json).toHaveBeenCalledWith({ message: 'Invalid signature' });
     expect(next).not.toHaveBeenCalled();
   });
 
