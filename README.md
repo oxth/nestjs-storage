@@ -446,6 +446,10 @@ storage.restore('local'); // back to the real disk
 
 While a disk is faked, every `StorageService` call for that disk name (`.put`, `.get`, `.disk('local')`, ...) transparently uses the fake instead — no code changes needed in the code under test.
 
+## Contributing
+
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for local setup, testing conventions, and how to add a driver or naming strategy.
+
 ## License
 
 MIT
