@@ -10,11 +10,19 @@ function mkTmp(prefix: string): string {
   return mkdtempSync(join(tmpdir(), prefix));
 }
 
+async function createService(
+  options: StorageModuleOptions,
+): Promise<StorageService> {
+  const service = new StorageService(options);
+  await service.init();
+  return service;
+}
+
 describe('StorageService (local disk, real filesystem)', () => {
   let localDir: string;
   let service: StorageService;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     localDir = mkTmp('nestjs-storage-local-');
     const options: StorageModuleOptions = {
       default: 'local',
@@ -29,7 +37,7 @@ describe('StorageService (local disk, real filesystem)', () => {
         },
       },
     };
-    service = new StorageService(options);
+    service = await createService(options);
   });
 
   afterEach(() => {
@@ -49,7 +57,7 @@ describe('StorageService (local disk, real filesystem)', () => {
     expect(service.getNamingStrategy('local')).toBe(UuidNamingStrategy);
   });
 
-  it('getNamingStrategy returns the disk-configured strategy when set', () => {
+  it('getNamingStrategy returns the disk-configured strategy when set', async () => {
     const customStrategy = () => 'custom';
     const options: StorageModuleOptions = {
       default: 'local',
@@ -61,7 +69,7 @@ describe('StorageService (local disk, real filesystem)', () => {
         },
       },
     };
-    const customService = new StorageService(options);
+    const customService = await createService(options);
     expect(customService.getNamingStrategy()).toBe(customStrategy);
   });
 
@@ -132,7 +140,7 @@ describe('StorageService (local disk, real filesystem)', () => {
         },
       },
     };
-    const signedService = new StorageService(signedOptions);
+    const signedService = await createService(signedOptions);
     await signedService.put('a.txt', 'hello');
 
     const url = await signedService.getSignedUrl('a.txt');
@@ -208,7 +216,7 @@ describe('StorageService custom drivers option', () => {
       },
       drivers: [{ name: 'memory', driver: memoryDriverFactory }],
     };
-    const service = new StorageService(options);
+    const service = await createService(options);
 
     await service.put('a.txt', 'hi');
 
@@ -227,7 +235,7 @@ describe('StorageService custom drivers option', () => {
       },
       drivers: [{ name: 'local', driver: overrideFactory }],
     };
-    const service = new StorageService(options);
+    const service = await createService(options);
 
     await service.put('a.txt', 'hi');
 
@@ -237,7 +245,7 @@ describe('StorageService custom drivers option', () => {
 });
 
 describe('StorageService remote driver wiring (construction only)', () => {
-  it('constructs an s3 disk without making network calls', () => {
+  it('constructs an s3 disk without making network calls', async () => {
     const options: StorageModuleOptions = {
       default: 's3',
       disks: {
@@ -253,11 +261,11 @@ describe('StorageService remote driver wiring (construction only)', () => {
         },
       },
     };
-    const service = new StorageService(options);
+    const service = await createService(options);
     expect(() => service.disk('s3')).not.toThrow();
   });
 
-  it('constructs an r2 disk without making network calls', () => {
+  it('constructs an r2 disk without making network calls', async () => {
     const options: StorageModuleOptions = {
       default: 'r2',
       disks: {
@@ -271,11 +279,11 @@ describe('StorageService remote driver wiring (construction only)', () => {
         },
       },
     };
-    const service = new StorageService(options);
+    const service = await createService(options);
     expect(() => service.disk('r2')).not.toThrow();
   });
 
-  it('constructs a gcs disk without making network calls', () => {
+  it('constructs a gcs disk without making network calls', async () => {
     const options: StorageModuleOptions = {
       default: 'gcs',
       disks: {
@@ -285,7 +293,7 @@ describe('StorageService remote driver wiring (construction only)', () => {
         },
       },
     };
-    const service = new StorageService(options);
+    const service = await createService(options);
     expect(() => service.disk('gcs')).not.toThrow();
   });
 });
@@ -308,7 +316,7 @@ describe('StorageService fake()/restore()', () => {
         local: { driver: 'local', config: { location: localDir } },
       },
     };
-    const service = new StorageService(options);
+    const service = await createService(options);
 
     const fake = service.fake('local');
     await fake.put('a.txt', 'faked contents');
@@ -333,7 +341,7 @@ describe('StorageService fake()/restore()', () => {
       },
       fakes: { location: fakesDir },
     };
-    const service = new StorageService(options);
+    const service = await createService(options);
 
     const fake = service.fake('local');
     await fake.put('a.txt', 'faked contents');

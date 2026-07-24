@@ -28,7 +28,7 @@ describe('StorageModule.forRoot', () => {
     rmSync(localDir, { recursive: true, force: true });
   });
 
-  it('returns a dynamic module with the options provider and StorageService', () => {
+  it('returns a dynamic module with the options provider and a StorageService factory', () => {
     const options = buildOptions(localDir);
     const dynamicModule = StorageModule.forRoot(options);
 
@@ -36,7 +36,11 @@ describe('StorageModule.forRoot', () => {
     expect(dynamicModule.exports).toEqual([StorageService]);
     expect(dynamicModule.providers).toEqual([
       { provide: STORAGE_MODULE_OPTIONS, useValue: options },
-      StorageService,
+      {
+        provide: StorageService,
+        useFactory: expect.any(Function),
+        inject: [STORAGE_MODULE_OPTIONS],
+      },
     ]);
   });
 

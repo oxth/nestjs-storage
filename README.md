@@ -17,15 +17,20 @@ npm install @oxth/nestjs-storage
 
 `@nestjs/common` is a peer dependency — install whatever version your app already uses (`^10` or `^11`).
 
-`flydrive`, `@aws-sdk/client-s3`, `@aws-sdk/s3-request-presigner`, and `@google-cloud/storage` are installed automatically as regular dependencies, since the local, S3/R2, and GCS drivers are all wired up out of the box.
-
-If you want to generate **CloudFront** signed URLs for the S3 driver, also install the one optional peer dependency for that feature:
+`flydrive` is a regular dependency (it's the storage engine behind every driver, including `local`). The SDKs for the other drivers are optional peer dependencies — only install the ones for the disks you actually configure:
 
 ```bash
+# only if you configure an s3 or r2 disk
+npm install @aws-sdk/client-s3 @aws-sdk/s3-request-presigner
+
+# only if you configure a gcs disk
+npm install @google-cloud/storage
+
+# only if you use CloudFront signed URLs on an s3 disk
 npm install @aws-sdk/cloudfront-signer
 ```
 
-Everything else (local disk, plain S3/R2 signed URLs) works without it.
+If you only use the `local` disk, you don't need to install any of these — the package never even attempts to load them.
 
 ## Quick start
 
@@ -255,6 +260,8 @@ A driver factory just needs to return an object implementing flydrive's `DriverC
 ## StorageService API
 
 `StorageService` mirrors flydrive's `Disk` API. Every method operates on the default disk unless you call `.disk(name)` first.
+
+> `StorageModule` handles this for you, but if you ever construct `StorageService` directly (e.g. outside of Nest DI, in a script) call `await service.init()` once before using it — that's the step that lazily resolves the driver(s) your config actually needs.
 
 | Method | Description |
 | --- | --- |

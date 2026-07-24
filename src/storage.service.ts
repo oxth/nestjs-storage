@@ -10,7 +10,7 @@ import type {
   S3DriverOptions,
   StorageModuleOptions,
 } from 'src/interfaces';
-import { GCSDriver } from 'flydrive/drivers/gcs';
+import { GCSDriverOptions } from 'flydrive/drivers/gcs/types';
 import {
   DriverContract,
   FileSnapshot,
@@ -19,48 +19,77 @@ import {
   SignedURLOptions,
   WriteOptions,
 } from 'flydrive/types';
-import { GCSDriverOptions } from 'flydrive/drivers/gcs/types';
 import { Disk, DriveDirectory, DriveFile, DriveManager } from 'flydrive';
 import { Readable } from 'node:stream';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { S3Driver } from 'src/drivers/s3.driver';
 import { LocalDriver } from 'src/drivers/local.driver';
-import { R2Driver } from 'src/drivers/r2.driver';
 import { UuidNamingStrategy } from 'src/strategies';
 
+/**
+ * @oxth/nestjs-storage bundles into a single entry point, so a plain
+ * top-level `import` of the s3/r2/gcs driver modules would pull in
+ * @aws-sdk/client-s3 and @google-cloud/storage for every consumer, even
+ * ones that only use the local disk. Resolving them here, lazily, and only
+ * for driver names actually present in `disks`, keeps those SDKs truly
+ * optional. StorageModule awaits `init()` before handing out the instance,
+ * so this only runs once, before any disk is used.
+ */
 @Injectable()
 export class StorageService {
-  private readonly driveManager: DriveManager<
-    Record<string, () => DriverContract>
-  >;
+  private driveManager!: DriveManager<Record<string, () => DriverContract>>;
 
   constructor(
     @Inject(STORAGE_MODULE_OPTIONS)
     private readonly options: StorageModuleOptions,
-  ) {
-    this.driveManager = this.createDrivers(options);
+  ) {}
+
+  /**
+   * Resolves the driver(s) this instance needs and builds the underlying
+   * DriveManager. Called by StorageModule before the service is handed out;
+   * if you construct StorageService manually (e.g. in a test), call this
+   * yourself first.
+   */
+  async init(): Promise<void> {
+    this.driveManager = await this.createDrivers(this.options);
   }
 
-  private getAvailableDrivers(): Record<
-    string,
-    (options: unknown) => DriverContract
-  > {
-    const defaultDrivers = {
-      local: (options: LocalDriverOptions) =>
-        new LocalDriver(options, this.options.signSecret),
-      s3: (options: S3DriverOptions) => new S3Driver(options),
-      r2: (options: R2DriverOptions) => new R2Driver(options),
-      gcs: (options: GCSDriverOptions) => new GCSDriver(options),
-    };
+  private async getAvailableDrivers(
+    usedDrivers: ReadonlySet<string>,
+  ): Promise<Record<string, (options: unknown) => DriverContract>> {
+    const defaultDrivers: Record<string, (options: unknown) => DriverContract> =
+      {
+        local: (options: LocalDriverOptions) =>
+          new LocalDriver(options, this.options.signSecret),
+      };
+
+    if (usedDrivers.has('s3')) {
+      const { S3Driver } = await import('./drivers/s3.driver.js');
+      defaultDrivers.s3 = (options: S3DriverOptions) => new S3Driver(options);
+    }
+
+    if (usedDrivers.has('r2')) {
+      const { R2Driver } = await import('./drivers/r2.driver.js');
+      defaultDrivers.r2 = (options: R2DriverOptions) => new R2Driver(options);
+    }
+
+    if (usedDrivers.has('gcs')) {
+      const { GCSDriver } = await import('flydrive/drivers/gcs');
+      defaultDrivers.gcs = (options: GCSDriverOptions) =>
+        new GCSDriver(options);
+    }
+
     return (this.options.drivers || []).reduce((acc, cur) => {
       acc[cur.name] = cur.driver;
       return acc;
     }, defaultDrivers);
   }
 
-  private createDrivers(options: StorageModuleOptions) {
-    const availableDrivers = this.getAvailableDrivers();
+  private async createDrivers(options: StorageModuleOptions) {
+    const usedDrivers = new Set(
+      Object.values(options.disks).map((disk) => disk.driver),
+    );
+    const availableDrivers = await this.getAvailableDrivers(usedDrivers);
     const services: Record<string, () => DriverContract> = Object.entries(
       options.disks,
     ).reduce((acc, [name, { driver, config }]) => {

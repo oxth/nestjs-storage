@@ -7,6 +7,20 @@ import type {
 import { STORAGE_MODULE_OPTIONS } from './constants';
 import { StorageService } from 'src/storage.service';
 
+async function createStorageService(
+  options: StorageModuleOptions,
+): Promise<StorageService> {
+  const service = new StorageService(options);
+  await service.init();
+  return service;
+}
+
+const storageServiceProvider: Provider = {
+  provide: StorageService,
+  useFactory: createStorageService,
+  inject: [STORAGE_MODULE_OPTIONS],
+};
+
 @Global()
 @Module({})
 export class StorageModule {
@@ -18,7 +32,7 @@ export class StorageModule {
           provide: STORAGE_MODULE_OPTIONS,
           useValue: options,
         },
-        StorageService,
+        storageServiceProvider,
       ],
       exports: [StorageService],
     };
@@ -28,7 +42,10 @@ export class StorageModule {
     return {
       module: StorageModule,
       imports: options.imports,
-      providers: [...this.createAsyncProviders(options), StorageService],
+      providers: [
+        ...this.createAsyncProviders(options),
+        storageServiceProvider,
+      ],
       exports: [StorageService],
     };
   }

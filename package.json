@@ -1,7 +1,7 @@
 {
   "name": "@oxth/nestjs-storage",
   "version": "0.0.1",
-  "description": "NestJS storage module with a unified API for Local, S3, R2, GCS, MinIO, Azure, B2, DigitalOcean Spaces, and Wasabi drivers",
+  "description": "NestJS storage module with a unified API for Local, S3, R2, GCS, Azure and S3 Compatibility drivers",
   "author": "OxTH",
   "license": "MIT",
   "homepage": "https://github.com/oxth/nestjs-storage#readme",
@@ -58,7 +58,7 @@
     "llm-full.md"
   ],
   "scripts": {
-    "build": "tsup",
+    "build": "tsup && tsc-alias -p tsconfig.build.json && node scripts/fix-esm-extensions.mjs",
     "format": "prettier --write \"src/**/*.ts\"",
     "lint": "eslint \"src/**/*.ts\" --fix",
     "test": "vitest run",
@@ -68,9 +68,6 @@
     "prepublishOnly": "pnpm build"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.1094.0",
-    "@aws-sdk/s3-request-presigner": "^3.1094.0",
-    "@google-cloud/storage": "^7.21.0",
     "@nestjs/platform-express": "^11.1.28",
     "@poppinss/string": "^1.7.2",
     "flydrive": "^2.1.0",
@@ -79,20 +76,35 @@
     "rxjs": "^7.8.2"
   },
   "peerDependencies": {
+    "@aws-sdk/client-s3": "^3.577.0",
     "@aws-sdk/cloudfront-signer": "^3.1088.0",
+    "@aws-sdk/s3-request-presigner": "^3.577.0",
+    "@google-cloud/storage": "^7.10.2",
     "@nestjs/common": "^10.0.0 || ^11.0.0"
   },
   "peerDependenciesMeta": {
+    "@aws-sdk/client-s3": {
+      "optional": true
+    },
     "@aws-sdk/cloudfront-signer": {
+      "optional": true
+    },
+    "@aws-sdk/s3-request-presigner": {
+      "optional": true
+    },
+    "@google-cloud/storage": {
       "optional": true
     }
   },
   "devDependencies": {
+    "@aws-sdk/client-s3": "^3.1094.0",
     "@aws-sdk/cloudfront-signer": "^3.1088.0",
     "@aws-sdk/s3-presigned-post": "^3.1094.0",
+    "@aws-sdk/s3-request-presigner": "^3.1094.0",
     "@azure/storage-blob": "^12.33.0",
     "@eslint/eslintrc": "^3.3.6",
     "@eslint/js": "^10.0.1",
+    "@google-cloud/storage": "^7.21.0",
     "@nestjs/cli": "^11.0.24",
     "@nestjs/common": "^11.1.28",
     "@nestjs/core": "^11.1.28",
@@ -114,6 +126,7 @@
     "supertest": "^7.2.2",
     "ts-loader": "^9.6.2",
     "ts-node": "^10.9.2",
+    "tsc-alias": "^1.9.1",
     "tsconfig-paths": "^4.2.0",
     "tsup": "^8.5.1",
     "typescript": "^5.9.3",
