@@ -12,7 +12,7 @@ import { Type } from '@nestjs/common/interfaces';
 
 import { StorageService } from 'src/storage.service';
 import { StorageFileInterceptorOptions } from 'src/interfaces';
-import { transformException } from '@nestjs/platform-express/multer/multer/multer.utils';
+import { transformException } from '@nestjs/platform-express/multer/multer/multer.utils.js';
 import { StoredFile } from 'src/interfaces/stored-file';
 import { generateFileName } from 'src/helpers';
 

@@ -58,34 +58,41 @@
     "llm-full.md"
   ],
   "scripts": {
-    "build": "nest build",
-    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
-    "start": "nest start",
-    "start:dev": "nest start --watch",
-    "start:debug": "nest start --debug --watch",
-    "start:prod": "node dist/main",
-    "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
+    "build": "tsup",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "lint": "eslint \"src/**/*.ts\" --fix",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:cov": "vitest run --coverage",
-    "test:debug": "vitest --inspect-brk --no-file-parallelism"
+    "test:debug": "vitest --inspect-brk --no-file-parallelism",
+    "prepublishOnly": "pnpm build"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1094.0",
+    "@aws-sdk/s3-request-presigner": "^3.1094.0",
+    "@google-cloud/storage": "^7.21.0",
     "@nestjs/platform-express": "^11.1.28",
     "@poppinss/string": "^1.7.2",
+    "flydrive": "^2.1.0",
     "multer": "^2.2.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.2"
   },
+  "peerDependencies": {
+    "@aws-sdk/cloudfront-signer": "^3.1088.0",
+    "@nestjs/common": "^10.0.0 || ^11.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@aws-sdk/cloudfront-signer": {
+      "optional": true
+    }
+  },
   "devDependencies": {
-    "@aws-sdk/client-s3": "^3.1094.0",
     "@aws-sdk/cloudfront-signer": "^3.1088.0",
     "@aws-sdk/s3-presigned-post": "^3.1094.0",
-    "@aws-sdk/s3-request-presigner": "^3.1094.0",
     "@azure/storage-blob": "^12.33.0",
     "@eslint/eslintrc": "^3.3.6",
     "@eslint/js": "^10.0.1",
-    "@google-cloud/storage": "^7.21.0",
     "@nestjs/cli": "^11.0.24",
     "@nestjs/common": "^11.1.28",
     "@nestjs/core": "^11.1.28",
@@ -101,7 +108,6 @@
     "eslint": "^9.39.5",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.6",
-    "flydrive": "^2.1.0",
     "globals": "^17.7.0",
     "prettier": "^3.9.6",
     "source-map-support": "^0.5.21",

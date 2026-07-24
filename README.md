@@ -1,98 +1,444 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# @oxth/nestjs-storage
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+A NestJS storage module with a single, unified API for Local filesystem, S3, Cloudflare R2, Google Cloud Storage, and any S3-compatible service (MinIO, Backblaze B2, DigitalOcean Spaces, Wasabi, ...). Built on top of [flydrive](https://flydrive.dev/).
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+- One `StorageService` API regardless of which disk(s) you configure
+- Multiple named disks in the same app, with a configurable default
+- Multer-based upload interceptors that stream files straight to a disk
+- Pluggable file naming strategies (UUID, hash, original name, date path)
+- Signed URLs for the local disk, enforced via a `Guard` or a `Middleware`
+- A built-in fake disk for tests, backed by the real filesystem
 
-## Description
-
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
-
-## Project setup
+## Installation
 
 ```bash
-$ pnpm install
+npm install @oxth/nestjs-storage
 ```
 
-## Compile and run the project
+`@nestjs/common` is a peer dependency — install whatever version your app already uses (`^10` or `^11`).
+
+`flydrive`, `@aws-sdk/client-s3`, `@aws-sdk/s3-request-presigner`, and `@google-cloud/storage` are installed automatically as regular dependencies, since the local, S3/R2, and GCS drivers are all wired up out of the box.
+
+If you want to generate **CloudFront** signed URLs for the S3 driver, also install the one optional peer dependency for that feature:
 
 ```bash
-# development
-$ pnpm run start
-
-# watch mode
-$ pnpm run start:dev
-
-# production mode
-$ pnpm run start:prod
+npm install @aws-sdk/cloudfront-signer
 ```
 
-## Run tests
+Everything else (local disk, plain S3/R2 signed URLs) works without it.
 
-```bash
-# unit tests
-$ pnpm run test
+## Quick start
 
-# e2e tests
-$ pnpm run test:e2e
+```ts
+import { Module } from '@nestjs/common';
+import { StorageModule } from '@oxth/nestjs-storage';
 
-# test coverage
-$ pnpm run test:cov
+@Module({
+  imports: [
+    StorageModule.forRoot({
+      default: 'local',
+      disks: {
+        local: {
+          driver: 'local',
+          config: {
+            location: './storage',
+            url: 'http://localhost:3000/files',
+          },
+        },
+      },
+    }),
+  ],
+})
+export class AppModule {}
 ```
 
-## Deployment
+`StorageModule` is `@Global()`, so `StorageService` is available for injection anywhere in your app once it's imported in your root module.
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+```ts
+import { Injectable } from '@nestjs/common';
+import { StorageService } from '@oxth/nestjs-storage';
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+@Injectable()
+export class AvatarsService {
+  constructor(private readonly storage: StorageService) {}
 
-```bash
-$ pnpm install -g @nestjs/mau
-$ mau deploy
+  async save(key: string, contents: Buffer) {
+    await this.storage.put(key, contents);
+    return this.storage.getUrl(key);
+  }
+}
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+## Async configuration
 
-## Resources
+Use `forRootAsync` when your disk config depends on other providers (e.g. a `ConfigService`):
 
-Check out a few resources that may come in handy when working with NestJS:
+```ts
+StorageModule.forRootAsync({
+  imports: [ConfigModule],
+  inject: [ConfigService],
+  useFactory: (config: ConfigService) => ({
+    default: 's3',
+    disks: {
+      s3: {
+        driver: 's3',
+        config: {
+          bucket: config.get('S3_BUCKET'),
+          region: config.get('S3_REGION'),
+          credentials: {
+            accessKeyId: config.get('AWS_ACCESS_KEY_ID'),
+            secretAccessKey: config.get('AWS_SECRET_ACCESS_KEY'),
+          },
+        },
+      },
+    },
+  }),
+});
+```
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+You can also provide a class implementing `StorageOptionsFactory`:
 
-## Support
+```ts
+@Injectable()
+class StorageConfigService implements StorageOptionsFactory {
+  createStorageOptions(): StorageModuleOptions {
+    return {
+      /* ... */
+    };
+  }
+}
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+StorageModule.forRootAsync({ useClass: StorageConfigService });
+```
 
-## Stay in touch
+## Disks and drivers
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+Every entry under `disks` has a `driver` name and a driver-specific `config`. The built-in drivers are:
+
+| Driver  | `config` shape                               | Notes                                                              |
+| ------- | --------------------------------------------- | ------------------------------------------------------------------- |
+| `local` | `{ location, url?, visibility?, ... }`         | Reads/writes to the local filesystem.                                |
+| `s3`    | `{ bucket, region, credentials, cdn?, ... }`    | Also covers MinIO, B2, DigitalOcean Spaces, Wasabi via `endpoint`.    |
+| `r2`    | `{ bucket, endpoint, credentials, region? }`    | Cloudflare R2 — same as `s3` with the right defaults baked in.        |
+| `gcs`   | `{ bucket, ... }`                               | Google Cloud Storage.                                                 |
+
+### Local
+
+```ts
+disks: {
+  local: {
+    driver: 'local',
+    config: {
+      location: './storage',              // absolute or relative root folder
+      url: 'http://localhost:3000/files',  // used to build public URLs
+      visibility: 'private',               // default; 'public' also supported
+    },
+  },
+},
+```
+
+Signed/temporary URLs for the local disk require a top-level `signSecret` (see [Signed URLs](#signed-urls-for-the-local-disk) below):
+
+```ts
+StorageModule.forRoot({
+  signSecret: process.env.STORAGE_SIGN_SECRET,
+  default: 'local',
+  disks: { local: { driver: 'local', config: { location: './storage' } } },
+});
+```
+
+Without `signSecret`, `getSignedUrl()` on the local disk logs a warning and falls back to an unsigned URL — fine for local development, not for production.
+
+### S3 (and S3-compatible services)
+
+```ts
+disks: {
+  s3: {
+    driver: 's3',
+    config: {
+      bucket: 'my-bucket',
+      region: 'us-east-1',
+      credentials: { accessKeyId: '...', secretAccessKey: '...' },
+    },
+  },
+},
+```
+
+MinIO, Backblaze B2, DigitalOcean Spaces, and Wasabi are all S3-API compatible — configure them the same way, pointing `endpoint` at that provider and, if required, setting `supportsACL: false`.
+
+**CloudFront signed URLs**: pass a `cdn` block and set `cdnUrl` to the CloudFront distribution URL:
+
+```ts
+config: {
+  bucket: 'my-bucket',
+  region: 'us-east-1',
+  credentials: { accessKeyId: '...', secretAccessKey: '...' },
+  cdnUrl: 'https://cdn.example.com',
+  cdn: {
+    provider: 'cloudfront',
+    signingKeyId: process.env.CLOUDFRONT_KEY_PAIR_ID,
+    signingKey: process.env.CLOUDFRONT_PRIVATE_KEY,
+  },
+},
+```
+
+With this configured, `storage.getSignedUrl(key)` transparently signs through CloudFront instead of S3 (requires `@aws-sdk/cloudfront-signer`, see [Installation](#installation)).
+
+### R2
+
+```ts
+disks: {
+  r2: {
+    driver: 'r2',
+    config: {
+      bucket: 'my-bucket',
+      endpoint: 'https://<account-id>.r2.cloudflarestorage.com',
+      credentials: { accessKeyId: '...', secretAccessKey: '...' },
+    },
+  },
+},
+```
+
+`region` defaults to `'auto'` and ACL support is disabled automatically, matching R2's requirements.
+
+### GCS
+
+```ts
+disks: {
+  gcs: {
+    driver: 'gcs',
+    config: { bucket: 'my-bucket' },
+  },
+},
+```
+
+### Multiple disks
+
+Configure as many disks as you need and pick one per call:
+
+```ts
+StorageModule.forRoot({
+  default: 'local',
+  disks: {
+    local: { driver: 'local', config: { location: './storage' } },
+    s3: {
+      driver: 's3',
+      config: {
+        bucket: 'backups',
+        region: 'us-east-1',
+        credentials: { accessKeyId: '...', secretAccessKey: '...' },
+      },
+    },
+  },
+});
+
+await storage.disk('s3').put('backup.zip', buffer);
+await storage.disk().put('avatar.png', buffer); // uses the default disk
+```
+
+### Custom drivers
+
+Register your own driver factory (e.g. for Azure Blob Storage) under `drivers`, then reference it by name from a disk:
+
+```ts
+StorageModule.forRoot({
+  default: 'azure',
+  disks: {
+    azure: { driver: 'azure', config: { /* your own shape */ } },
+  },
+  drivers: [{ name: 'azure', driver: (config) => new MyAzureDriver(config) }],
+});
+```
+
+A driver factory just needs to return an object implementing flydrive's `DriverContract`.
+
+## StorageService API
+
+`StorageService` mirrors flydrive's `Disk` API. Every method operates on the default disk unless you call `.disk(name)` first.
+
+| Method | Description |
+| --- | --- |
+| `disk(name?)` | Get the underlying flydrive `Disk` for a given (or default) disk. |
+| `file(key)` / `fromSnapshot(snapshot)` | Get a lazy `DriveFile` pointer, optionally rehydrated from a persisted snapshot. |
+| `exists(key)` | Whether a file exists. |
+| `get(key)` / `getBytes(key)` / `getStream(key)` | Read contents as a string, `Uint8Array`, or `Readable`. |
+| `getMetaData(key)` | Content length, content type, etag, last modified. |
+| `getVisibility(key)` / `setVisibility(key, visibility)` | Read/update `'public'` \| `'private'`. |
+| `getUrl(key)` | Public URL for the file. |
+| `getSignedUrl(key, options?)` | Temporary signed URL (download). |
+| `getSignedUploadUrl(key, options?)` | Temporary signed URL for direct upload. |
+| `put(key, contents, options?)` / `putStream(key, contents, options?)` | Write a file from a string/buffer or a stream. |
+| `copy(src, dest, options?)` / `move(src, dest, options?)` | Copy/move within the same disk. |
+| `copyFromFs(fsPath, dest, options?)` / `moveFromFs(fsPath, dest, options?)` | Import a file from the local filesystem into any disk. |
+| `delete(key)` / `deleteAll(prefix?)` | Delete one file, or everything under a prefix. |
+| `listAll(prefix?, options?)` | Paginated listing of files and directories. |
+| `getDefaultDisk()` / `getSignSecret()` / `getNamingStrategy(diskName?)` | Read back the resolved configuration. |
+| `fake(diskName?)` / `restore(diskName?)` | Swap a disk for a fake one, see [Testing](#testing-with-a-fake-disk). |
+
+## File uploads
+
+Four interceptor factories cover the common upload shapes. Each accepts an options object: `{ disk?, path?, namingStrategy?, fileFilter?, limits? }`.
+
+| Interceptor | Multer equivalent | Where the result ends up |
+| --- | --- | --- |
+| `StorageFileInterceptor(field, options?)` | `.single(field)` | `req.file` |
+| `StorageFilesInterceptor(field, maxCount?, options?)` | `.array(field, maxCount)` | `req.files` (array) |
+| `StorageFileFieldsInterceptor(fields, options?)` | `.fields([{ name, maxCount: 1 }, ...])` | `req.files` (map, one file per field) |
+| `StorageFilesFieldsInterceptor(fields, maxCount?, options?)` | `.fields([{ name, maxCount }, ...])` | `req.files` (map of arrays) |
+
+Each stored file is uploaded straight to disk and replaced on the request with a plain `StoredFile` object — no buffer kept in memory afterwards:
+
+```ts
+interface StoredFile {
+  disk: string; // disk it was stored on
+  path: string; // key/path in that disk
+  size: number;
+  mimetype: string;
+  originalName: string;
+}
+```
+
+### Single file
+
+```ts
+import { Controller, Post, UseInterceptors, Req } from '@nestjs/common';
+import { StorageFileInterceptor } from '@oxth/nestjs-storage';
+import type { Request } from 'express';
+
+@Controller('avatars')
+export class AvatarsController {
+  @Post()
+  @UseInterceptors(StorageFileInterceptor('avatar'))
+  upload(@Req() req: Request) {
+    return req.file; // StoredFile
+  }
+}
+```
+
+### Multiple files (one field)
+
+```ts
+@Post()
+@UseInterceptors(StorageFilesInterceptor('photos', 10))
+upload(@Req() req: Request) {
+  return req.files; // StoredFile[]
+}
+```
+
+### One file per named field
+
+```ts
+import {
+  UploadedFileFields,
+  StorageFileFieldsInterceptor,
+} from '@oxth/nestjs-storage';
+
+@Post()
+@UseInterceptors(StorageFileFieldsInterceptor(['avatar', 'cover']))
+upload(
+  @UploadedFileFields('avatar') avatar: StoredFile,
+  @UploadedFileFields('cover') cover: StoredFile,
+) {
+  return { avatar, cover };
+}
+```
+
+### Multiple files per named field
+
+```ts
+@Post()
+@UseInterceptors(StorageFilesFieldsInterceptor(['photos', 'documents'], 5))
+upload(@UploadedFileFields('photos') photos: StoredFile[]) {
+  return photos;
+}
+```
+
+### Per-upload options
+
+```ts
+StorageFileInterceptor('avatar', {
+  disk: 's3', // override the default disk
+  path: 'avatars', // key prefix
+  namingStrategy: HashNamingStrategy,
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => cb(null, file.mimetype.startsWith('image/')),
+});
+```
+
+## Naming strategies
+
+A naming strategy decides the stored file name/key from the uploaded file's contents and original name:
+
+```ts
+type NamingStrategy = (
+  file: Uint8Array,
+  originalName: string,
+) => string | Promise<string>;
+```
+
+Built in:
+
+| Strategy | Produces |
+| --- | --- |
+| `UuidNamingStrategy` (default) | `<uuid-v7><ext>` |
+| `OriginalNamingStrategy` | the original file name, unchanged |
+| `HashNamingStrategy` | `<sha256-of-contents><ext>` — natural de-duplication |
+| `DatePathNamingStrategy` | `<yyyy>/<mm>/<dd>/<original-name-without-ext><ext>` |
+| `DatePathUuidNamingStrategy` | `<yyyy>/<mm>/<dd>/<uuid-v7><ext>` |
+
+Set one per disk, or override it per upload:
+
+```ts
+disks: {
+  local: {
+    driver: 'local',
+    config: { location: './storage' },
+    namingStrategy: HashNamingStrategy,
+  },
+},
+```
+
+Or write your own — it's just a function.
+
+## Signed URLs for the local disk
+
+The `local` driver can hand out HMAC-signed, expiring URLs once `signSecret` is set on the module. Protect the route that serves those files with either the guard or the middleware — both share the same verification logic, so pick whichever fits your app:
+
+```ts
+// Guard: rejects with a NestJS ForbiddenException
+@UseGuards(LocalSignedUrlGuard)
+@Get('files/*path')
+serve() {
+  /* ... */
+}
+```
+
+```ts
+// Middleware: writes a plain { message } 403 response itself
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(LocalSignedUrlMiddleware).forRoutes('files');
+  }
+}
+```
+
+Generate the signed URL from your app with `storage.getSignedUrl(key, { expiresIn: '10mins' })` — this appends `expires` and `signature` query parameters that the guard/middleware verify on the way in.
+
+## Testing with a fake disk
+
+`StorageService.fake(diskName?)` swaps a disk for a real-filesystem-backed fake (under a temp directory by default, or wherever you configure via `fakes.location`), so your tests never touch production storage:
+
+```ts
+const fake = storage.fake('local');
+
+await yourService.uploadAvatar(file);
+
+fake.assertExists('avatars/photo.png');
+storage.restore('local'); // back to the real disk
+```
+
+While a disk is faked, every `StorageService` call for that disk name (`.put`, `.get`, `.disk('local')`, ...) transparently uses the fake instead — no code changes needed in the code under test.
 
 ## License
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+MIT
