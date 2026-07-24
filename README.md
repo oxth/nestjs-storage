@@ -9,6 +9,8 @@ A NestJS storage module with a single, unified API for Local filesystem, S3, Clo
 - Signed URLs for the local disk, enforced via a `Guard` or a `Middleware`
 - A built-in fake disk for tests, backed by the real filesystem
 
+> Pointing an AI coding assistant at this package? [`llm.md`](./llm.md) is a condensed API reference and [`llm-full.md`](./llm-full.md) is the exhaustive one — both are more token-efficient than this README for that purpose.
+
 ## Installation
 
 ```bash
