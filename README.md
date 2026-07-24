@@ -473,7 +473,7 @@ While a disk is faked, every `StorageService` call for that disk name (`.put`, `
 
 ## Contributing
 
-See [CONTRIBUTING.md](./CONTRIBUTING.md) for local setup, testing conventions, and how to add a driver or naming strategy.
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for local setup, testing conventions, and how to add a driver or naming strategy. See [CHANGELOG.md](./CHANGELOG.md) for release history.
 
 ## License
 
