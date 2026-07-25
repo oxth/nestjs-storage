@@ -1,4 +1,9 @@
+import { createRequire } from 'node:module';
 import { defineConfig } from 'vitepress';
+
+const { version } = createRequire(import.meta.url)('../../package.json') as {
+  version: string;
+};
 
 export default defineConfig({
   title: '@oxth/nestjs-storage',
@@ -42,7 +47,7 @@ export default defineConfig({
       { text: 'Drivers', link: '/drivers/', activeMatch: '/drivers/' },
       { text: 'API Reference', link: '/api/', activeMatch: '/api/' },
       {
-        text: 'v0.1.0',
+        text: `v${version}`,
         items: [
           {
             text: 'Changelog',

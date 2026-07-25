@@ -1,5 +1,10 @@
 # @oxth/nestjs-storage
 
+[![CI](https://github.com/oxth/nestjs-storage/actions/workflows/ci.yml/badge.svg)](https://github.com/oxth/nestjs-storage/actions/workflows/ci.yml)
+[![npm version](https://img.shields.io/npm/v/@oxth/nestjs-storage.svg)](https://www.npmjs.com/package/@oxth/nestjs-storage)
+[![npm downloads](https://img.shields.io/npm/dt/@oxth/nestjs-storage.svg)](https://www.npmjs.com/package/@oxth/nestjs-storage)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 A NestJS storage module with a single, unified API for Local filesystem, S3, Cloudflare R2, Google Cloud Storage, Azure Blob Storage, and any S3-compatible service (MinIO, Backblaze B2, DigitalOcean Spaces, Wasabi, ...). Built on top of [flydrive](https://flydrive.dev/).
 
 **[Full documentation site](https://oxth.github.io/nestjs-storage/)**

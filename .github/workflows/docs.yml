@@ -6,13 +6,14 @@ on:
     # No `tags:` trigger: GitHub Pages' auto-created environment only
     # allows branch deployments by default, so a tag-triggered run fails
     # with "not allowed to deploy... due to environment protection rules".
-    # Every release already lands a commit on main too (via the
-    # `pnpm version` postversion hook or publish.yml's bump-back step), but
-    # that commit only touches package.json, which the paths filter below
-    # excludes - a release alone no longer redeploys the docs site.
+    # Every release lands a commit on main too (via the `pnpm version`
+    # postversion hook or publish.yml's bump-back step) touching only
+    # package.json - included below so the docs nav's version label
+    # (read from package.json at build time) stays in sync with releases.
     paths:
       - 'docs/**'
       - '.github/workflows/docs.yml'
+      - 'package.json'
   workflow_dispatch: {}
 
 permissions:

@@ -11,6 +11,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 - Upgraded TypeScript from 5.9 to 6.0. Dropped the deprecated `baseUrl` compiler option (`paths` resolves relative to `tsconfig.json` without it) and added an explicit `rootDir` to keep `dist/` output flat under the new default rootDir behavior.
 
+### Fixed
+
+- Docs site nav no longer shows a hardcoded, stale version (`v0.1.0`) — it now reads `package.json`'s version at build time.
+- `docs.yml` now redeploys on a `package.json` change too, since a release only touches that file on `main` and previously wasn't redeploying the docs site at all.
+
 ## [0.1.2] - 2026-07-24
 
 ### Added
