@@ -5,6 +5,7 @@ import { Observable } from 'rxjs';
 import {
   CallHandler,
   ExecutionContext,
+  Injectable,
   mixin,
   NestInterceptor,
 } from '@nestjs/common';
@@ -24,6 +25,9 @@ export function StorageFileFieldsInterceptor(
   fieldNames: string[],
   options: StorageFileInterceptorOptions = {},
 ): Type<NestInterceptor> {
+  /* v8 ignore start -- @Injectable() with no param/method decorators never takes the decorator helper's `kind` branch */
+  @Injectable()
+  /* v8 ignore stop */
   class MixinInterceptor implements NestInterceptor {
     protected multer: multer.Multer;
 
