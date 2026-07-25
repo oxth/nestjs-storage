@@ -1,7 +1,9 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "incremental": false
+    "incremental": false,
+    // tsup's dts bundler always synthesizes its own baseUrl, tripping TS 6's deprecation error
+    "ignoreDeprecations": "6.0"
   },
   "exclude": ["node_modules", "test", "dist", "**/*spec.ts"]
 }

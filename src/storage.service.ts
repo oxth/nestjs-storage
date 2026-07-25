@@ -60,30 +60,34 @@ export class StorageService {
   ): Promise<Record<string, (options: unknown) => DriverContract>> {
     const defaultDrivers: Record<string, (options: unknown) => DriverContract> =
       {
-        local: (options: LocalDriverOptions) =>
-          new LocalDriver(options, this.options.signSecret),
+        local: ((options: LocalDriverOptions) =>
+          new LocalDriver(options, this.options.signSecret)) as (
+          options: unknown,
+        ) => DriverContract,
       };
 
     if (usedDrivers.has('s3')) {
       const { S3Driver } = await import('./drivers/s3.driver.js');
-      defaultDrivers.s3 = (options: S3DriverOptions) => new S3Driver(options);
+      defaultDrivers.s3 = ((options: S3DriverOptions) =>
+        new S3Driver(options)) as (options: unknown) => DriverContract;
     }
 
     if (usedDrivers.has('r2')) {
       const { R2Driver } = await import('./drivers/r2.driver.js');
-      defaultDrivers.r2 = (options: R2DriverOptions) => new R2Driver(options);
+      defaultDrivers.r2 = ((options: R2DriverOptions) =>
+        new R2Driver(options)) as (options: unknown) => DriverContract;
     }
 
     if (usedDrivers.has('gcs')) {
       const { GCSDriver } = await import('flydrive/drivers/gcs');
-      defaultDrivers.gcs = (options: GCSDriverOptions) =>
-        new GCSDriver(options);
+      defaultDrivers.gcs = ((options: GCSDriverOptions) =>
+        new GCSDriver(options)) as (options: unknown) => DriverContract;
     }
 
     if (usedDrivers.has('azure')) {
       const { AzureDriver } = await import('./drivers/azure.driver.js');
-      defaultDrivers.azure = (options: AzureDriverOptions) =>
-        new AzureDriver(options);
+      defaultDrivers.azure = ((options: AzureDriverOptions) =>
+        new AzureDriver(options)) as (options: unknown) => DriverContract;
     }
 
     return (this.options.drivers || []).reduce((acc, cur) => {
