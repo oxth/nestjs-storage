@@ -7,8 +7,12 @@ on:
     # allows branch deployments by default, so a tag-triggered run fails
     # with "not allowed to deploy... due to environment protection rules".
     # Every release already lands a commit on main too (via the
-    # `pnpm version` postversion hook or publish.yml's bump-back step), so
-    # the branch trigger alone still redeploys docs on every release.
+    # `pnpm version` postversion hook or publish.yml's bump-back step), but
+    # that commit only touches package.json, which the paths filter below
+    # excludes - a release alone no longer redeploys the docs site.
+    paths:
+      - 'docs/**'
+      - '.github/workflows/docs.yml'
   workflow_dispatch: {}
 
 permissions:

@@ -335,16 +335,20 @@ interface StoredFile {
 ### Single file
 
 ```ts
-import { Controller, Post, UseInterceptors, Req } from '@nestjs/common';
-import { StorageFileInterceptor } from '@oxth/nestjs-storage';
-import type { Request } from 'express';
+import {
+  Controller,
+  Post,
+  UseInterceptors,
+  UploadedFile,
+} from '@nestjs/common';
+import { StorageFileInterceptor, StoredFile } from '@oxth/nestjs-storage';
 
 @Controller('avatars')
 export class AvatarsController {
   @Post()
   @UseInterceptors(StorageFileInterceptor('avatar'))
-  upload(@Req() req: Request) {
-    return req.file; // StoredFile
+  upload(@UploadedFile() avatar: StoredFile) {
+    return avatar;
   }
 }
 ```
@@ -352,10 +356,12 @@ export class AvatarsController {
 ### Multiple files (one field)
 
 ```ts
+import { UploadedFiles } from '@nestjs/common';
+
 @Post()
 @UseInterceptors(StorageFilesInterceptor('photos', 10))
-upload(@Req() req: Request) {
-  return req.files; // StoredFile[]
+upload(@UploadedFiles() photos: StoredFile[]) {
+  return photos;
 }
 ```
 
