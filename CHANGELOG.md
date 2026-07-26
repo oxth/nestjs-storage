@@ -7,9 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.5] - 2026-07-26
+
 ### Documentation
 
 - Documented `verifySignedUrl` and `LocalDriver` — both were already exported from `@oxth/nestjs-storage` and covered in `llm-full.md`, but missing from the README and docs site. Added a "Verifying signatures outside HTTP controllers" section to the Signed URLs guide and a Helper functions / `LocalDriver` section to the API reference.
+- Added `AGENTS.md` (with `CLAUDE.md` importing it) documenting this repo's conventions for AI coding agents.
+
+### Removed
+
+- Removed 12 unused `devDependencies` (`@nestjs/cli`, `@nestjs/schematics`, `ts-loader`, `ts-node`, `tsconfig-paths`, `source-map-support`, `supertest`, `@types/supertest`, `archiver`, `zod`, `@smithy/types`, `@eslint/eslintrc`) and the now-vestigial `nest-cli.json` — leftovers from the initial `nest new` scaffold, never referenced by this package's source, scripts, or config.
 
 ### Changed
 
