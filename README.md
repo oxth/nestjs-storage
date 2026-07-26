@@ -469,6 +469,8 @@ export class AppModule implements NestModule {
 
 Generate the signed URL from your app with `storage.getSignedUrl(key, { expiresIn: '10mins' })` — this appends `expires` and `signature` query parameters that the guard/middleware verify on the way in.
 
+Need the same check somewhere the guard/middleware don't reach (a GraphQL resolver, a WebSocket gateway, ...)? Both are thin wrappers around an exported `verifySignedUrl(req, signSecret)` function you can call directly — see [Signed URLs](https://oxth.github.io/nestjs-storage/guide/signed-urls#verifying-signatures-outside-http-controllers) in the docs.
+
 ## Testing with a fake disk
 
 `StorageService.fake(diskName?)` swaps a disk for a real-filesystem-backed fake (under a temp directory by default, or wherever you configure via `fakes.location`), so your tests never touch production storage:

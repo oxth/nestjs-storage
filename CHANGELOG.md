@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Documentation
+
+- Documented `verifySignedUrl` and `LocalDriver` — both were already exported from `@oxth/nestjs-storage` and covered in `llm-full.md`, but missing from the README and docs site. Added a "Verifying signatures outside HTTP controllers" section to the Signed URLs guide and a Helper functions / `LocalDriver` section to the API reference.
+
 ### Changed
 
 - Upgraded TypeScript from 5.9 to 6.0. Dropped the deprecated `baseUrl` compiler option (`paths` resolves relative to `tsconfig.json` without it) and added an explicit `rootDir` to keep `dist/` output flat under the new default rootDir behavior.

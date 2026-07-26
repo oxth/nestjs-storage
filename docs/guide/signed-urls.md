@@ -46,3 +46,19 @@ This appends `expires` and `signature` query parameters that the guard/middlewar
 - **Invalid signature** — the recomputed HMAC-SHA256 signature doesn't match (or the provided signature isn't valid hex)
 
 Without a configured `signSecret`, `getSignedUrl()` on the local disk logs a warning and falls back to an **unsigned** URL — fine for local development, not for production.
+
+## Verifying signatures outside HTTP controllers
+
+The guard and middleware both call the same exported function under the hood — `verifySignedUrl(req, signSecret)` from `@oxth/nestjs-storage`. Reuse it directly wherever `LocalSignedUrlGuard`/`LocalSignedUrlMiddleware` don't fit, e.g. a GraphQL resolver, a WebSocket gateway, or a custom controller that needs a different failure response:
+
+```ts
+import { verifySignedUrl } from '@oxth/nestjs-storage';
+
+const result = verifySignedUrl(request, signSecret);
+if (!result.valid) {
+  // result.reason: 'Missing signature parameters' | 'URL has expired' | 'Invalid signature'
+  throw new Error(result.reason);
+}
+```
+
+`req` only needs `query`, `originalUrl`, `protocol`, and `host` — any object shaped like an Express `Request` (or a subset built from another transport) works.

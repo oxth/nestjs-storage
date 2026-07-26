@@ -130,6 +130,39 @@ interface StorageFileInterceptorOptions {
 }
 ```
 
+## Helper functions
+
+Exported for reuse outside the built-in interceptors/guard/middleware — see [Signed URLs](/guide/signed-urls#verifying-signatures-outside-http-controllers) for `verifySignedUrl` in context:
+
+```ts
+function verifySignedUrl(
+  req: Pick<Request, 'query' | 'originalUrl' | 'protocol' | 'host'>,
+  signSecret: string,
+): SignedUrlVerificationResult;
+
+type SignedUrlRejectionReason =
+  | 'Missing signature parameters'
+  | 'URL has expired'
+  | 'Invalid signature';
+
+type SignedUrlVerificationResult =
+  | { valid: true }
+  | { valid: false; reason: SignedUrlRejectionReason };
+
+function generateFileName(
+  strategy: NamingStrategy,
+  file: Express.Multer.File,
+  storedPath?: string,
+): Promise<string>;
+// path.join(storedPath ?? '', await strategy(file.buffer, file.originalname))
+```
+
+`generateFileName` is what every upload interceptor uses internally to turn a naming strategy's result into a full stored path; only worth reaching for directly if you're building a fully custom interceptor from scratch instead of using the four built-in ones.
+
+## `LocalDriver`
+
+The only concrete driver class exported directly (the `s3`/`r2`/`gcs`/`azure` drivers are resolved lazily by name and not part of the public API). It's flydrive's `FSDriver` with a `local`-specific URL builder (plain or HMAC-signed, depending on whether `signSecret` was set). See [Custom Drivers](/drivers/custom-drivers) if you want to extend or wrap it.
+
 ---
 
 `SignedURLOptions`, `WriteOptions`, `ObjectMetaData`, `ObjectVisibility`, `FileSnapshot`, `DriverContract` are flydrive types (`flydrive/types`). `Disk`, `DriveFile`, `DriveDirectory` are flydrive classes (`flydrive`). For the exhaustive version of every type here, plus internal driver behavior, see [`llm-full.md`](https://github.com/oxth/nestjs-storage/blob/main/llm-full.md).
