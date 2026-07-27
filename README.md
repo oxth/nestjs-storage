@@ -410,6 +410,30 @@ StorageFileInterceptor('avatar', {
 });
 ```
 
+### File validation
+
+`FileExtensionValidator` is a `@nestjs/common` `FileValidator` you can drop into `ParseFilePipe` to reject uploads by extension before they ever reach an interceptor:
+
+```ts
+import { ParseFilePipe, UploadedFile } from '@nestjs/common';
+import { FileExtensionValidator } from '@oxth/nestjs-storage';
+
+@Post()
+@UseInterceptors(StorageFileInterceptor('avatar'))
+upload(
+  @UploadedFile(
+    new ParseFilePipe({
+      validators: [new FileExtensionValidator({ allowedExtensions: ['.png', '.jpg', 'jpeg'] })],
+    }),
+  )
+  avatar: StoredFile,
+) {
+  return avatar;
+}
+```
+
+Extensions are matched case-insensitively against `path.extname(file.originalname)`; the leading dot is optional in `allowedExtensions`.
+
 ## Naming strategies
 
 A naming strategy decides the stored file name/key from the uploaded file's contents and original name:

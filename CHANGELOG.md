@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.6] - 2026-07-27
+
+### Added
+
+- `FileExtensionValidator`, a `@nestjs/common` `FileValidator` for `ParseFilePipe` that rejects uploads whose extension isn't in an allowed list (case-insensitive, leading dot optional). Exported from `src/pipes/`.
+
 ## [0.1.5] - 2026-07-26
 
 ### Documentation

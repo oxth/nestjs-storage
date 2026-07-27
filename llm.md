@@ -81,6 +81,10 @@ StorageFilesFieldsInterceptor(fields, maxCount?, options?) // req.files: Record<
 interface StoredFile { disk: string; path: string; size: number; mimetype: string; originalName: string }
 ```
 
+## File validation
+
+`FileExtensionValidator({ allowedExtensions })` is a `@nestjs/common` `FileValidator` for use with `ParseFilePipe`; rejects a file unless `path.extname(file.originalname)` (case-insensitive) is in `allowedExtensions` (leading dot optional).
+
 ## Naming strategies
 
 `UuidNamingStrategy` (default), `OriginalNamingStrategy`, `HashNamingStrategy`, `DatePathNamingStrategy`, `DatePathUuidNamingStrategy`. Set per-disk via `namingStrategy`, or write your own: `(file: Uint8Array, originalName: string) => string | Promise<string>`.

@@ -130,6 +130,21 @@ interface StorageFileInterceptorOptions {
 }
 ```
 
+## `FileExtensionValidator`
+
+A `@nestjs/common` `FileValidator` for use with `ParseFilePipe` — see [File validation](/guide/file-uploads#file-validation):
+
+```ts
+interface FileExtensionValidatorOptions {
+  allowedExtensions: string[]; // leading dot optional, matched case-insensitively
+}
+
+class FileExtensionValidator extends FileValidator<FileExtensionValidatorOptions> {
+  isValid(file?: Express.Multer.File): boolean;
+  buildErrorMessage(file: Express.Multer.File): string;
+}
+```
+
 ## Helper functions
 
 Exported for reuse outside the built-in interceptors/guard/middleware — see [Signed URLs](/guide/signed-urls#verifying-signatures-outside-http-controllers) for `verifySignedUrl` in context:

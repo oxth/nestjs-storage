@@ -327,6 +327,25 @@ interface StoredFile {
 }
 ```
 
+## File validation
+
+```ts
+interface FileExtensionValidatorOptions {
+  allowedExtensions: string[]; // leading dot optional; matched case-insensitively
+}
+
+class FileExtensionValidator extends FileValidator<FileExtensionValidatorOptions> {
+  constructor(validationOptions: FileExtensionValidatorOptions);
+  isValid(file?: Express.Multer.File): boolean;
+  // false if `file` is undefined; otherwise compares path.extname(file.originalname).toLowerCase()
+  // against the normalized (lowercased, dot-prefixed) allowedExtensions list.
+  buildErrorMessage(file: Express.Multer.File): string;
+  // `File extension [${ext}] is not allowed. Allowed extensions: ${allowedExtensions.join(', ')}`
+}
+```
+
+A `@nestjs/common` `FileValidator` — pass it in `ParseFilePipe`'s `validators` array.
+
 ## Naming strategies
 
 ```ts

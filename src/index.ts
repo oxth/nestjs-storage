@@ -9,3 +9,4 @@ export * from './middleware';
 export * from './storage.module';
 export * from './storage.service';
 export * from './strategies';
+export * from './pipes';
