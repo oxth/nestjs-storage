@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Changed
+
+- CI now publishes test coverage (`coverage/lcov.info`) to Codacy via `codacy/codacy-coverage-reporter-action` after `pnpm test:cov`. Requires a `CODACY_PROJECT_TOKEN` repository secret.
+
 ## [0.1.6] - 2026-07-27
 
 ### Added

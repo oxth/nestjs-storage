@@ -137,7 +137,7 @@ Explain the *why* in the body when it isn't obvious from the subject.
 
 ## Continuous Integration
 
-Every push to `main` and every pull request runs [`.github/workflows/ci.yml`](.github/workflows/ci.yml): lint, the full test suite with coverage, and the build. A pull request can't be merged with a red check — this is what makes the automated dependency-update PRs (below) safe to land without extra manual verification, and it's what you should expect your own PRs to pass too.
+Every push to `main` and every pull request runs [`.github/workflows/ci.yml`](.github/workflows/ci.yml): lint, the full test suite with coverage, and the build. After the test step, the coverage report (`coverage/lcov.info`) is also published to [Codacy](https://www.codacy.com/) via `codacy/codacy-coverage-reporter-action`, authenticated with the `CODACY_PROJECT_TOKEN` repository secret; this step is skipped for pull requests from forks, since forks don't have access to repository secrets. A pull request can't be merged with a red check — this is what makes the automated dependency-update PRs (below) safe to land without extra manual verification, and it's what you should expect your own PRs to pass too.
 
 [Dependabot](.github/dependabot.yml) checks weekly and opens one pull request per outdated dependency (both npm packages and the GitHub Actions used in `.github/workflows/*.yml`) — it never pushes to `main` directly. Each of those PRs goes through the same `ci.yml` checks and review as any other; a broken bump only ever affects the one PR for that dependency.
 
