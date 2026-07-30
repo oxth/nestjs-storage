@@ -4,6 +4,8 @@
 [![npm version](https://img.shields.io/npm/v/@oxth/nestjs-storage.svg)](https://www.npmjs.com/package/@oxth/nestjs-storage)
 [![npm downloads](https://img.shields.io/npm/dt/@oxth/nestjs-storage.svg)](https://www.npmjs.com/package/@oxth/nestjs-storage)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/6419f4e8899d461c989e2f32233df028)](https://app.codacy.com/gh/oxth/nestjs-storage/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
+[![Codacy Badge](https://app.codacy.com/project/badge/Coverage/6419f4e8899d461c989e2f32233df028)](https://app.codacy.com/gh/oxth/nestjs-storage/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_coverage)
 
 A NestJS storage module with a single, unified API for Local filesystem, S3, Cloudflare R2, Google Cloud Storage, Azure Blob Storage, and any S3-compatible service (MinIO, Backblaze B2, DigitalOcean Spaces, Wasabi, ...). Built on top of [flydrive](https://flydrive.dev/).
 
