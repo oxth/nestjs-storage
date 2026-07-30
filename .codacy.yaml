@@ -1,3 +1,8 @@
 exclude_paths:
+  - "*.yml"
+  - "*.yaml"
+  - "**/*.yml"
+  - "**/*.yaml"
+  - "*.md"
   - "**/*.md"
   - "**/*.spec.ts"
