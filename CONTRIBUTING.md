@@ -18,11 +18,7 @@ Thanks for your interest in contributing! This guide covers setup, workflow, and
    pnpm build
    ```
 
-Requires **Node 24+** — the naming strategies use `node:crypto`'s `randomUUIDv7`, which isn't available on older Node versions. Check with:
-```bash
-node -e "console.log(typeof require('node:crypto').randomUUIDv7)"
-```
-This should print `function`. The repo is developed against pnpm; `pnpm-lock.yaml` is committed.
+Requires **Node 20+**. The repo is developed against pnpm; `pnpm-lock.yaml` is committed.
 
 ## Project Structure
 

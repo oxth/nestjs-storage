@@ -9,7 +9,7 @@ Comprehensive API reference distilled from source. For a condensed version, see 
 - Peer dependency: `@nestjs/common` (`^10.0.0 || ^11.0.0`, required).
 - Regular dependency: `flydrive` (used unconditionally by every disk type, including `local`).
 - Optional peer dependencies (`peerDependenciesMeta.optional: true`): `@aws-sdk/client-s3`, `@aws-sdk/s3-request-presigner` (s3/r2 disks), `@google-cloud/storage` (gcs disks), `@azure/storage-blob` (azure disks), `@aws-sdk/cloudfront-signer` (CloudFront signed URLs on an s3 disk).
-- Requires Node 24+ at runtime (naming strategies use `node:crypto`'s `randomUUIDv7`).
+- Requires Node 20+ at runtime (naming strategies use the `uuid` package's `v7()`).
 
 ### Lazy driver loading
 
@@ -351,11 +351,11 @@ A `@nestjs/common` `FileValidator` — pass it in `ParseFilePipe`'s `validators`
 ```ts
 type NamingStrategy<T = Uint8Array> = (file: T, originalName: string) => string | Promise<string>;
 
-UuidNamingStrategy: NamingStrategy;              // `${randomUUIDv7()}${ext}`
+UuidNamingStrategy: NamingStrategy;              // `${uuidv7()}${ext}`
 OriginalNamingStrategy: NamingStrategy;          // originalName, unchanged
 HashNamingStrategy: NamingStrategy;              // `${sha256(file)}${ext}` (hex)
 DatePathNamingStrategy: NamingStrategy;          // `${yyyy}/${mm}/${dd}/${originalNameWithoutExt}${ext}`
-DatePathUuidNamingStrategy: NamingStrategy;      // `${yyyy}/${mm}/${dd}/${randomUUIDv7()}${ext}`
+DatePathUuidNamingStrategy: NamingStrategy;      // `${yyyy}/${mm}/${dd}/${uuidv7()}${ext}`
 ```
 Date components use the local system clock at call time (`new Date()`), zero-padded to 2 digits for month/day.
 

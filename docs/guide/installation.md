@@ -30,4 +30,4 @@ If you only use the `local` disk, you don't need to install any of these — the
 
 ## Node version
 
-This package requires **Node 24+** — the naming strategies use `node:crypto`'s `randomUUIDv7`, which isn't available on older Node versions.
+This package requires **Node 20+** — the naming strategies use the `uuid` package's `v7()` for UUID v7 generation.

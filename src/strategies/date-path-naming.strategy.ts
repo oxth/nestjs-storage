@@ -1,5 +1,5 @@
 import { extname } from 'node:path';
-import { randomUUIDv7 } from 'node:crypto';
+import { v7 as uuidv7 } from 'uuid';
 
 import { NamingStrategy } from 'src/interfaces/storage';
 
@@ -9,7 +9,7 @@ function generate(originalName: string, useUuid: boolean): string {
   const year = now.getFullYear();
   const month = String(now.getMonth() + 1).padStart(2, '0');
   const day = String(now.getDate()).padStart(2, '0');
-  const leaf = useUuid ? randomUUIDv7() : originalName.replace(ext, '');
+  const leaf = useUuid ? uuidv7() : originalName.replace(ext, '');
   return `${year}/${month}/${day}/${leaf}${ext}`;
 }
 

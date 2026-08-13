@@ -28,7 +28,7 @@ This is `@oxth/nestjs-storage` — a NestJS module giving a single, unified `Sto
 ## Writing Code
 
 - TypeScript, strict typing, enforced by ESLint + Prettier — single quotes, trailing commas (`.prettierrc`)
-- Node 24+ only: naming strategies use `node:crypto`'s `randomUUIDv7`
+- Node 20+; naming strategies use the `uuid` package's `v7()` for UUID v7 generation
 - Never add a static top-level import for a third-party SDK (`@aws-sdk/*`, `@google-cloud/storage`, `@azure/storage-blob`). These must stay optional peer dependencies for `local`-only consumers — see [Build Pipeline](#build-pipeline)
 - Driver wrappers implement flydrive's `DriverContract`, not a bespoke interface
 - All public API must be exported from `src/index.ts` via the relevant barrel `src/*/index.ts`

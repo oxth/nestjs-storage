@@ -7,8 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.7] - 2026-08-13
+
 ### Changed
 
+- Naming strategies now generate UUID v7 values via the [`uuid`](https://www.npmjs.com/package/uuid) package's `v7()` instead of `node:crypto`'s `randomUUIDv7`. This drops the minimum supported Node version from 24+ to **20+**.
 - CI now publishes test coverage (`coverage/lcov.info`) to Codacy via `codacy/codacy-coverage-reporter-action` after `pnpm test:cov`. Requires a `CODACY_PROJECT_TOKEN` repository secret.
 
 ## [0.1.6] - 2026-07-27

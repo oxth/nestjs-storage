@@ -4,9 +4,9 @@
   "description": "NestJS storage module with a unified API for Local, S3, R2, GCS, Azure and S3 Compatibility drivers",
   "author": "OxTH",
   "license": "MIT",
-  "packageManager": "pnpm@10.33.4",
+  "packageManager": "pnpm@11.21.0",
   "engines": {
-    "node": ">=24"
+    "node": ">=20"
   },
   "homepage": "https://oxth.github.io/nestjs-storage/",
   "repository": {
@@ -80,12 +80,13 @@
     "postversion": "git push --follow-tags"
   },
   "dependencies": {
-    "@nestjs/platform-express": "^11.1.28",
+    "@nestjs/platform-express": "^11.1.29",
     "@poppinss/string": "^1.7.2",
     "flydrive": "^2.1.0",
     "multer": "^2.2.0",
     "reflect-metadata": "^0.2.2",
-    "rxjs": "^7.8.2"
+    "rxjs": "^7.8.2",
+    "uuid": "^14.0.1"
   },
   "peerDependencies": {
     "@aws-sdk/client-s3": "^3",
@@ -113,29 +114,29 @@
     }
   },
   "devDependencies": {
-    "@aws-sdk/client-s3": "^3.1095.0",
-    "@aws-sdk/cloudfront-signer": "^3.1095.0",
-    "@aws-sdk/s3-presigned-post": "^3.1095.0",
-    "@aws-sdk/s3-request-presigner": "^3.1095.0",
+    "@aws-sdk/client-s3": "^3.1109.0",
+    "@aws-sdk/cloudfront-signer": "^3.1108.0",
+    "@aws-sdk/s3-presigned-post": "^3.1109.0",
+    "@aws-sdk/s3-request-presigner": "^3.1109.0",
     "@azure/storage-blob": "^12.33.0",
     "@eslint/js": "^10.0.1",
-    "@google-cloud/storage": "^7.21.0",
-    "@nestjs/common": "^11.1.28",
-    "@nestjs/core": "^11.1.28",
-    "@nestjs/testing": "^11.1.28",
+    "@google-cloud/storage": "^7.22.0",
+    "@nestjs/common": "^11.1.29",
+    "@nestjs/core": "^11.1.29",
+    "@nestjs/testing": "^11.1.29",
     "@types/express": "^5.0.6",
     "@types/multer": "^2.2.0",
-    "@types/node": "^26.1.1",
+    "@types/node": "^26.2.0",
     "@vitest/coverage-v8": "^4.1.10",
     "eslint": "^9.39.5",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.6",
-    "globals": "^17.7.0",
+    "globals": "^17.11.0",
     "prettier": "^3.9.6",
     "tsc-alias": "^1.9.1",
     "tsup": "^8.5.1",
     "typescript": "^6.0.3",
-    "typescript-eslint": "^8.65.0",
+    "typescript-eslint": "^8.67.0",
     "vitepress": "^1.6.4",
     "vitest": "^4.1.10"
   }

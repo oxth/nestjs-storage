@@ -1,5 +1,5 @@
 import { extname } from 'node:path';
-import { randomUUIDv7 } from 'node:crypto';
+import { v7 as uuidv7 } from 'uuid';
 
 import { NamingStrategy } from 'src/interfaces/storage';
 
@@ -8,5 +8,5 @@ export const UuidNamingStrategy: NamingStrategy = (
   originalName,
 ): string => {
   const ext = extname(originalName);
-  return `${randomUUIDv7()}${ext}`;
+  return `${uuidv7()}${ext}`;
 };
