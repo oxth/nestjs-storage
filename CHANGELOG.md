@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.8] - 2026-08-20
+
 ### Changed
 
 - **Breaking:** `StoredFile.originalName` is now `StoredFile.originalname` (lowercase `n`), matching Multer's own `file.originalname` casing.
