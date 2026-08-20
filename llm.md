@@ -78,7 +78,7 @@ StorageFilesFieldsInterceptor(fields, maxCount?, options?) // req.files: Record<
 `options`: `{ disk?, path?, namingStrategy?, fileFilter?, limits? }`. Read fields-based results with `@UploadedFileFields('name')`.
 
 ```ts
-interface StoredFile { disk: string; path: string; size: number; mimetype: string; originalName: string }
+interface StoredFile { disk: string; path: string; size: number; mimetype: string; originalname: string }
 ```
 
 ## File validation

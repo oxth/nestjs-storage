@@ -128,7 +128,7 @@ describe('StorageFileInterceptor', () => {
       disk: 'local',
       mimetype: 'image/png',
       size: 4,
-      originalName: 'photo.png',
+      originalname: 'photo.png',
     });
     expect((req.file as any).path).toMatch(/\.png$/);
     expect(result).toBe(handleResult);

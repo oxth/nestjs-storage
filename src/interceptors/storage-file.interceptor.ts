@@ -66,7 +66,7 @@ export function StorageFileInterceptor(
         path: storedPath,
         mimetype: req.file.mimetype,
         size: req.file.size,
-        originalName: req.file.originalname,
+        originalname: req.file.originalname,
       };
 
       req.file = storedFile as unknown as Express.Multer.File;

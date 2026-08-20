@@ -143,7 +143,7 @@ describe('StorageFilesInterceptor', () => {
     expect(req.files).toHaveLength(2);
     expect((req.files as any)[0]).toMatchObject({
       disk: 's3',
-      originalName: 'a.png',
+      originalname: 'a.png',
     });
     expect((req.files as any)[0].path).toMatch(/^gallery\//);
     expect(arrayMock).toHaveBeenCalledWith('photos', 5);

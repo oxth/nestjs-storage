@@ -8,5 +8,5 @@ export interface StoredFile {
   /** MIME type */
   mimetype: string;
   /** Original filename from the client */
-  originalName: string;
+  originalname: string;
 }

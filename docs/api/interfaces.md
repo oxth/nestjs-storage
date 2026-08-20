@@ -89,7 +89,7 @@ interface StoredFile {
   path: string;          // key/path within that disk
   size: number;
   mimetype: string;
-  originalName: string;  // original client-provided filename
+  originalname: string;  // original client-provided filename
 }
 ```
 

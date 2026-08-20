@@ -42,7 +42,7 @@ describe('UploadedFileFields', () => {
       path: 'avatars/a.png',
       size: 10,
       mimetype: 'image/png',
-      originalName: 'a.png',
+      originalname: 'a.png',
     };
     const factory = getFactory();
 

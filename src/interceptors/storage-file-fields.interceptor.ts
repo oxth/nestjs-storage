@@ -79,7 +79,7 @@ export function StorageFileFieldsInterceptor(
             path: storedPath,
             mimetype: file.mimetype,
             size: file.size,
-            originalName: file.originalname,
+            originalname: file.originalname,
           };
         }
       }

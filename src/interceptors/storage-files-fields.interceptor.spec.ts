@@ -131,7 +131,7 @@ describe('StorageFilesFieldsInterceptor', () => {
     expect(storedFiles.photos).toHaveLength(2);
     expect(storedFiles.photos[0]).toMatchObject({
       disk: 's3',
-      originalName: 'a.png',
+      originalname: 'a.png',
     });
     expect(storedFiles.documents).toEqual([]);
     expect(fieldsMock).toHaveBeenCalledWith([

@@ -17,7 +17,7 @@ interface StoredFile {
   path: string; // key/path in that disk
   size: number;
   mimetype: string;
-  originalName: string;
+  originalname: string;
 }
 ```
 

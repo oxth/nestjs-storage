@@ -123,7 +123,7 @@ describe('StorageFileFieldsInterceptor', () => {
     const storedFiles = req.files as any;
     expect(storedFiles.avatar).toMatchObject({
       disk: 's3',
-      originalName: 'avatar.png',
+      originalname: 'avatar.png',
     });
     expect(storedFiles.cover).toBeUndefined();
   });
