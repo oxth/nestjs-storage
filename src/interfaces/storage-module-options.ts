@@ -1,4 +1,4 @@
-import { Abstract, ModuleMetadata, Type } from '@nestjs/common/interfaces';
+import { Abstract, ModuleMetadata, Type } from '@nestjs/common';
 import { FSDriverOptions } from 'flydrive/drivers/fs/types';
 import { S3DriverOptions as BaseS3DriverOptions } from 'flydrive/drivers/s3/types';
 import { GCSDriverOptions } from 'flydrive/drivers/gcs/types';

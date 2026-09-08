@@ -9,8 +9,8 @@ import {
   Injectable,
   mixin,
   NestInterceptor,
+  Type,
 } from '@nestjs/common';
-import { Type } from '@nestjs/common/interfaces';
 
 import { StorageService } from 'src/storage.service';
 import { StorageFileInterceptorOptions } from 'src/interfaces';

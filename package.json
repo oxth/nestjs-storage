@@ -1,6 +1,6 @@
 {
   "name": "@oxth/nestjs-storage",
-  "version": "0.1.8",
+  "version": "0.2.0",
   "description": "NestJS storage module with a unified API for Local, S3, R2, GCS, Azure and S3 Compatibility drivers",
   "author": "OxTH",
   "license": "MIT",
@@ -80,13 +80,13 @@
     "postversion": "git push --follow-tags"
   },
   "dependencies": {
-    "@nestjs/platform-express": "^11.1.29",
+    "@nestjs/platform-express": "^12.0.1",
     "@poppinss/string": "^1.7.2",
     "flydrive": "^2.1.0",
-    "multer": "^2.2.0",
+    "multer": "^2.3.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.2",
-    "uuid": "^14.0.1"
+    "uuid": "^14.0.2"
   },
   "peerDependencies": {
     "@aws-sdk/client-s3": "^3",
@@ -94,7 +94,7 @@
     "@aws-sdk/s3-request-presigner": "^3",
     "@azure/storage-blob": "^12",
     "@google-cloud/storage": "^7",
-    "@nestjs/common": "^10 || ^11"
+    "@nestjs/common": "^10 || ^11 || ^12"
   },
   "peerDependenciesMeta": {
     "@aws-sdk/client-s3": {
@@ -114,29 +114,29 @@
     }
   },
   "devDependencies": {
-    "@aws-sdk/client-s3": "^3.1109.0",
-    "@aws-sdk/cloudfront-signer": "^3.1108.0",
-    "@aws-sdk/s3-presigned-post": "^3.1109.0",
-    "@aws-sdk/s3-request-presigner": "^3.1109.0",
+    "@aws-sdk/client-s3": "^3.1127.0",
+    "@aws-sdk/cloudfront-signer": "^3.1125.0",
+    "@aws-sdk/s3-presigned-post": "^3.1127.0",
+    "@aws-sdk/s3-request-presigner": "^3.1127.0",
     "@azure/storage-blob": "^12.33.0",
     "@eslint/js": "^10.0.1",
     "@google-cloud/storage": "^7.22.0",
-    "@nestjs/common": "^11.1.29",
-    "@nestjs/core": "^11.1.29",
-    "@nestjs/testing": "^11.1.29",
+    "@nestjs/common": "^12.0.1",
+    "@nestjs/core": "^12.0.1",
+    "@nestjs/testing": "^12.0.1",
     "@types/express": "^5.0.6",
     "@types/multer": "^2.2.0",
-    "@types/node": "^26.2.0",
+    "@types/node": "^26.5.0",
     "@vitest/coverage-v8": "^4.1.10",
     "eslint": "^9.39.5",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.6",
-    "globals": "^17.11.0",
+    "globals": "^17.12.0",
     "prettier": "^3.9.6",
-    "tsc-alias": "^1.9.1",
+    "tsc-alias": "^1.9.4",
     "tsup": "^8.5.1",
     "typescript": "^6.0.3",
-    "typescript-eslint": "^8.67.0",
+    "typescript-eslint": "^8.69.0",
     "vitepress": "^1.6.4",
     "vitest": "^4.1.10"
   }

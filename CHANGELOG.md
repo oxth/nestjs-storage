@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-09-08
+
+### Added
+
+- NestJS 12 support.
+
 ## [0.1.8] - 2026-08-20
 
 ### Changed
@@ -81,6 +87,7 @@ Initial release.
 - `README.md`, `CONTRIBUTING.md`, and `llm.md`/`llm-full.md` (condensed and exhaustive API references).
 - CI: lint/test/build on every push and pull request; a tag-triggered (`v*`) publish workflow authenticated via npm's OIDC Trusted Publisher; a weekly scheduled dependency-update workflow that opens a pull request rather than pushing to `main` directly.
 
-[Unreleased]: https://github.com/oxth/nestjs-storage/compare/v0.1.2...HEAD
+[Unreleased]: https://github.com/oxth/nestjs-storage/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/oxth/nestjs-storage/compare/v0.1.8...v0.2.0
 [0.1.2]: https://github.com/oxth/nestjs-storage/compare/v0.1.0...v0.1.2
 [0.1.0]: https://github.com/oxth/nestjs-storage/releases/tag/v0.1.0

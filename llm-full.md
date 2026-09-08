@@ -6,7 +6,7 @@ Comprehensive API reference distilled from source. For a condensed version, see 
 
 - Public entry: everything below is exported from `@oxth/nestjs-storage` (i.e. `src/index.ts`, re-exporting `constants`, `decorators`, `drivers` (only `LocalDriver`), `guards`, `helpers`, `interceptors`, `interfaces`, `middleware`, `storage.module`, `storage.service`, `strategies`).
 - `S3Driver`/`R2Driver`/`AzureDriver` classes are **not** part of the public entry (only referenced internally by `StorageService`); they exist under `src/drivers/` but aren't re-exported, to keep them out of the eagerly-loaded module graph.
-- Peer dependency: `@nestjs/common` (`^10.0.0 || ^11.0.0`, required).
+- Peer dependency: `@nestjs/common` (`^10.0.0 || ^11.0.0 || ^12.0.0`, required).
 - Regular dependency: `flydrive` (used unconditionally by every disk type, including `local`).
 - Optional peer dependencies (`peerDependenciesMeta.optional: true`): `@aws-sdk/client-s3`, `@aws-sdk/s3-request-presigner` (s3/r2 disks), `@google-cloud/storage` (gcs disks), `@azure/storage-blob` (azure disks), `@aws-sdk/cloudfront-signer` (CloudFront signed URLs on an s3 disk).
 - Requires Node 20+ at runtime (naming strategies use the `uuid` package's `v7()`).

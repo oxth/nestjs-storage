@@ -4,7 +4,7 @@
 npm install @oxth/nestjs-storage
 ```
 
-`@nestjs/common` is a peer dependency — install whatever version your app already uses (`^10` or `^11`).
+`@nestjs/common` is a peer dependency — install whatever version your app already uses (`^10`, `^11`, or `^12`).
 
 `flydrive` is a regular dependency (it's the storage engine behind every driver, including `local`). The SDKs for the other drivers are **optional peer dependencies** — only install the ones for the disks you actually configure:
 
