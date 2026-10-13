@@ -16,7 +16,7 @@ importers:
         version: 1.7.2
       flydrive:
         specifier: ^2.1.0
-        version: 2.1.0(@aws-sdk/client-s3@3.1127.0)(@aws-sdk/s3-request-presigner@3.1127.0)(@google-cloud/storage@7.22.0(supports-color@7.2.0))
+        version: 2.2.0(@aws-sdk/client-s3@3.1127.0)(@aws-sdk/s3-request-presigner@3.1127.0)(@google-cloud/storage@7.22.0(supports-color@7.2.0))
       multer:
         specifier: ^2.3.0
         version: 2.3.0
@@ -874,8 +874,8 @@ packages:
   '@poppinss/types@1.2.1':
     resolution: {integrity: sha512-qUYnzl0m9HJTWsXtr8Xo7CwDx6wcjrvo14bOVbIMIlKJCzKrm3LX55dRTDr1/x4PpSvKVgmxvC6Ly2YiqXKOvQ==}
 
-  '@poppinss/utils@7.0.1':
-    resolution: {integrity: sha512-mveSvLI2YPC114mK5HCuSYfUtjpClf1wHG1VCqZJCp4U2ypPhIt62Iku5urh0kPAFvnvCVHx2bXBSH14qMTOlQ==}
+  '@poppinss/utils@7.1.1':
+    resolution: {integrity: sha512-m1pR6EsycFyDHWDyoWnTI2sgEpOAZuKECQRgZ9i+uGzU/DNoEXn70ldt1V3u2EKp2tNf9T9QqX1wBMHm+xcpiw==}
 
   '@rolldown/binding-android-arm64@1.1.5':
     resolution: {integrity: sha512-lZg8fqIv2v7FF237bwMgzGZEJvGL79/s5knJ/i6FmsGF4XXlzccZ4jb+TrFIxtSSxFtIpdsgrPZeMk1I9AFcyQ==}
@@ -1989,13 +1989,13 @@ packages:
     resolution: {integrity: sha512-9UbaD6XdAL97+k/n+N7JwX46K/M6Zc6KcFYskrYL8wbBV/Uyk0CTAMY0VT+qiK5PM7AIc9aTWYtq65U7T+aCNQ==}
     engines: {node: '>=8'}
 
-  flydrive@2.1.0:
-    resolution: {integrity: sha512-464Y3vfAZKI3h+LodtjjFMnMxiItyHTKVGzfb2RBYzPfFl1gG7/RstlXH7bhUgB34h44lO9Cm4ZDW8UEk6Jd5g==}
+  flydrive@2.2.0:
+    resolution: {integrity: sha512-e4xYe+I1J0O0jufOS38jKPxdxzxcRzX+1GM4IP0xRcJtvwBizbJ3r5z1uGghfx1+FQLbQxD0LxHLQU6UbpegMg==}
     engines: {node: '>=24.0.0'}
     peerDependencies:
-      '@aws-sdk/client-s3': ^3.577.0
-      '@aws-sdk/s3-request-presigner': ^3.577.0
-      '@google-cloud/storage': ^7.10.2
+      '@aws-sdk/client-s3': ^3.577.0 || ^3.1147.0
+      '@aws-sdk/s3-request-presigner': ^3.577.0 || ^3.1147.0
+      '@google-cloud/storage': ^7.10.2 || ^8.2.0
     peerDependenciesMeta:
       '@aws-sdk/client-s3':
         optional: true
@@ -4049,7 +4049,7 @@ snapshots:
 
   '@poppinss/types@1.2.1': {}
 
-  '@poppinss/utils@7.0.1':
+  '@poppinss/utils@7.1.1':
     dependencies:
       '@poppinss/exception': 1.2.3
       '@poppinss/object-builder': 1.1.0
@@ -5234,10 +5234,10 @@ snapshots:
 
   flattie@1.1.1: {}
 
-  flydrive@2.1.0(@aws-sdk/client-s3@3.1127.0)(@aws-sdk/s3-request-presigner@3.1127.0)(@google-cloud/storage@7.22.0(supports-color@7.2.0)):
+  flydrive@2.2.0(@aws-sdk/client-s3@3.1127.0)(@aws-sdk/s3-request-presigner@3.1127.0)(@google-cloud/storage@7.22.0(supports-color@7.2.0)):
     dependencies:
       '@humanwhocodes/retry': 0.4.3
-      '@poppinss/utils': 7.0.1
+      '@poppinss/utils': 7.1.1
       etag: 1.8.1
       mime-types: 3.0.2
     optionalDependencies:
