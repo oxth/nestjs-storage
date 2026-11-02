@@ -35,7 +35,7 @@ importers:
         version: 3.1152.0
       '@aws-sdk/cloudfront-signer':
         specifier: ^3.1149.0
-        version: 3.1149.0
+        version: 3.1157.0
       '@aws-sdk/s3-presigned-post':
         specifier: ^3.1152.0
         version: 3.1152.0
@@ -192,8 +192,8 @@ packages:
     resolution: {integrity: sha512-oI1+ZaM6pSOwZazu4nAb7rL8ug7LSjg31tDoJqRB9MooRqqWCf/qvkIZqne1mRA3xK3slg6K0RNWXaJYHbWLvg==}
     engines: {node: '>=20.0.0'}
 
-  '@aws-sdk/cloudfront-signer@3.1149.0':
-    resolution: {integrity: sha512-KQWf9uMG4r/L6lI1t4oMSeFlKNRCql6SLA9Kz7Xgg/nzJXDsXfOZyG1Da2N9WZ5nWnbBytPuPTXClOGC051ZTA==}
+  '@aws-sdk/cloudfront-signer@3.1157.0':
+    resolution: {integrity: sha512-zrv8MUlYJEXgXAOyUbHswv3G0HPaqJLkllPH2KyCWYSvHrR9g5v+KtXB5RWdxTCBlO9gp5aN/XBXYUqe3O2Q0w==}
     engines: {node: '>=20.0.0'}
 
   '@aws-sdk/core@3.978.3':
@@ -1143,10 +1143,17 @@ packages:
   '@smithy/core@3.33.3':
     resolution: {integrity: sha512-CsOeKq/9kA3y6VJHt+/+VTCtBaxJ4OTFpgrjIUhPpDIKxBci1k2bJaQASF2h/ELWrulGp+t97DZ0mevfAD8idg==}
     engines: {node: '>=18.0.0'}
+    deprecated: Deprecated due to a bug in custom logger data redaction. See https://github.com/aws/aws-sdk-js-v3/issues/8393.
 
   '@smithy/core@3.35.2':
     resolution: {integrity: sha512-ejTukBuP/Pg3t9N8Ux+0zKsXeHWm7p6W3HbXFOyltKasSxZwCFmvTut7kBdZSCF3m9y1bXXyVu6p2xuMFcsTyQ==}
     engines: {node: '>=18.0.0'}
+    deprecated: Deprecated due to a bug in custom logger data redaction. See https://github.com/aws/aws-sdk-js-v3/issues/8393.
+
+  '@smithy/core@3.38.0':
+    resolution: {integrity: sha512-aLyyCnK2p4yvNA2TaM+5owXqb+rZGSiUKEsNP329AzeYnERtAz7NrlTbRsaxqmZ0ooxwoID8LMm959UGQQDIsg==}
+    engines: {node: '>=18.0.0'}
+    deprecated: Deprecated due to a bug in custom logger data redaction. See https://github.com/aws/aws-sdk-js-v3/issues/8393.
 
   '@smithy/credential-provider-imds@4.5.2':
     resolution: {integrity: sha512-A9uSdn72ozbRUSit0eib0TW7nXuNPlaeM0zcGkJ+nE6tFcSDbnmtwoxbTCFBukVQcszDAyvsd7+rTduPTXpygg==}
@@ -3365,9 +3372,9 @@ snapshots:
       '@smithy/types': 4.19.0
       tslib: 2.8.1
 
-  '@aws-sdk/cloudfront-signer@3.1149.0':
+  '@aws-sdk/cloudfront-signer@3.1157.0':
     dependencies:
-      '@smithy/core': 3.35.2
+      '@smithy/core': 3.38.0
       tslib: 2.8.1
 
   '@aws-sdk/core@3.978.3':
@@ -4240,6 +4247,11 @@ snapshots:
       tslib: 2.8.1
 
   '@smithy/core@3.35.2':
+    dependencies:
+      '@smithy/types': 4.19.0
+      tslib: 2.8.1
+
+  '@smithy/core@3.38.0':
     dependencies:
       '@smithy/types': 4.19.0
       tslib: 2.8.1
