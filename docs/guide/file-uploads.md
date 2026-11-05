@@ -1,3 +1,7 @@
+---
+description: 'Stream NestJS file uploads straight to S3, R2, GCS, Azure or local disk with Multer-based interceptors, per-upload options and file validation.'
+---
+
 # File Uploads
 
 Four interceptor factories cover the common upload shapes. Each accepts an options object: `{ disk?, path?, namingStrategy?, fileFilter?, limits? }`.

@@ -1,3 +1,7 @@
+---
+description: 'Test NestJS file storage without touching real buckets: swap any disk for a filesystem-backed fake and assert files exist or are missing.'
+---
+
 # Testing
 
 `StorageService.fake(diskName?)` swaps a disk for a real-filesystem-backed fake (under a temp directory by default, or wherever you configure via `fakes.location`), so your tests never touch production storage:

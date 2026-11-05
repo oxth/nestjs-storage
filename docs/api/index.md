@@ -1,3 +1,7 @@
+---
+description: 'API reference for @oxth/nestjs-storage: StorageService methods, module options, driver config types, StoredFile, fakes and helper functions.'
+---
+
 # API Reference
 
 This section covers `StorageService`'s methods and the public interfaces/types. For a machine-readable, exhaustive version of everything on this site (plus internal driver behavior notes), see [`llm-full.md`](https://github.com/oxth/nestjs-storage/blob/main/llm-full.md) in the repo — it's kept in sync with the source and is the most complete reference available.

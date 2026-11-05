@@ -1,3 +1,7 @@
+---
+description: 'Compare the storage drivers in @oxth/nestjs-storage: config shape and support for signed download and upload URLs, visibility and CDN URLs per driver.'
+---
+
 # Drivers Overview
 
 Every entry under `disks` has a `driver` name and a driver-specific `config`. The built-in drivers are:

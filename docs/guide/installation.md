@@ -1,3 +1,7 @@
+---
+description: 'Install @oxth/nestjs-storage and only the cloud SDKs you need. AWS, Google Cloud and Azure SDKs are optional peer dependencies, loaded lazily.'
+---
+
 # Installation
 
 ```bash

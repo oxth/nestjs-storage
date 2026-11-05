@@ -1,3 +1,7 @@
+---
+description: 'Use Azure Blob Storage from NestJS: account key or connection string auth, SAS signed URLs, container visibility and CDN or custom domains.'
+---
+
 # Azure Blob Storage
 
 ```bash

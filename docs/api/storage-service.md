@@ -1,3 +1,7 @@
+---
+description: 'Every StorageService method: read, write, stream, copy, move, delete and list files, get public or signed URLs, and switch disks.'
+---
+
 # StorageService
 
 `StorageService` mirrors flydrive's `Disk` API. Every method operates on the default disk unless you call `.disk(name)` first.

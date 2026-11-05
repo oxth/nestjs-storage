@@ -1,3 +1,7 @@
+---
+description: 'Get started with @oxth/nestjs-storage: register StorageModule and use one StorageService API for local disk, S3, R2, GCS and Azure in your NestJS app.'
+---
+
 # Getting Started
 
 `@oxth/nestjs-storage` gives you one `StorageService` API regardless of which storage backend(s) you configure — local filesystem, S3, Cloudflare R2, Google Cloud Storage, Azure Blob Storage, or any S3-compatible service.

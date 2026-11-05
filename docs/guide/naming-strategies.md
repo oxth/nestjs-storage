@@ -1,3 +1,7 @@
+---
+description: 'Choose how uploaded files are named: UUID v7, content hash, original name or date-based paths, or write your own naming strategy function.'
+---
+
 # Naming Strategies
 
 A naming strategy decides the stored file name/key from the uploaded file's contents and original name:
