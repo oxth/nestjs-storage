@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Security
+
+- Raised the `multer` dependency to `^2.5.0`, which fixes a denial-of-service when a request is torn down while an async `fileFilter` is still pending ([GHSA-q7qp-rjg7-q26m](https://github.com/advisories/GHSA-q7qp-rjg7-q26m)). This affects every upload interceptor.
+- Raised `@nestjs/platform-express` to `^12.3.2`. Express's own ranges already allow the patched `body-parser`, `proxy-addr` and `qs` releases, so a fresh install picks them up; if your lockfile pins older ones, run your package manager's update.
+
 ### Documentation
 
 - Redesigned the docs site: new logo, teal theme, IBM Plex Sans / JetBrains Mono, an interactive code sample in the hero, and install + per-driver config sections on the home page.
