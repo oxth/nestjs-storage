@@ -1,3 +1,7 @@
+---
+description: 'TypeScript types for @oxth/nestjs-storage: StorageModuleOptions, driver configs, StoredFile, FakeDisk, NamingStrategy, interceptor options and helpers.'
+---
+
 # Interfaces & Types
 
 ## `StorageModuleOptions`

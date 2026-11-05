@@ -1,12 +1,40 @@
 import { createRequire } from 'node:module';
-import { defineConfig } from 'vitepress';
+import { defineConfig, type HeadConfig } from 'vitepress';
 
 const { version } = createRequire(import.meta.url)('../../package.json') as {
   version: string;
 };
 
+const SITE_URL = 'https://oxth.github.io/nestjs-storage/';
+
+// Matches the URLs in sitemap.xml (cleanUrls): `guide/index.md` -> `guide/`,
+// `guide/installation.md` -> `guide/installation`.
+function pageUrl(relativePath: string): string {
+  const path = relativePath
+    .replace(/(^|\/)index\.md$/, '$1')
+    .replace(/\.md$/, '');
+  return SITE_URL + path;
+}
+
+// Tells search engines this site documents a software library.
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'SoftwareSourceCode',
+  name: '@oxth/nestjs-storage',
+  description:
+    'A NestJS module with one StorageService API for local disk, Amazon S3, Cloudflare R2, Google Cloud Storage, Azure Blob Storage and S3-compatible services.',
+  url: SITE_URL,
+  codeRepository: 'https://github.com/oxth/nestjs-storage',
+  programmingLanguage: 'TypeScript',
+  runtimePlatform: 'Node.js',
+  license: 'https://opensource.org/licenses/MIT',
+  version,
+};
+
 export default defineConfig({
   title: '@oxth/nestjs-storage',
+  // "NestJS Storage" in every page title matches what people search for.
+  titleTemplate: ':title | NestJS Storage',
   description:
     'A unified NestJS storage API for Local, S3, R2, GCS, Azure, and any S3-compatible service.',
   base: '/nestjs-storage/',
@@ -41,20 +69,9 @@ export default defineConfig({
         href: 'https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap',
       },
     ],
-    ['meta', { property: 'og:title', content: '@oxth/nestjs-storage' }],
-    [
-      'meta',
-      {
-        property: 'og:description',
-        content:
-          'A unified NestJS storage API for Local, S3, R2, GCS, Azure, and any S3-compatible service.',
-      },
-    ],
+    // og:title, og:description, og:url and canonical are per page: see transformHead.
     ['meta', { property: 'og:type', content: 'website' }],
-    [
-      'meta',
-      { property: 'og:url', content: 'https://oxth.github.io/nestjs-storage/' },
-    ],
+    ['meta', { property: 'og:site_name', content: '@oxth/nestjs-storage' }],
     // Social platforms need an absolute URL for the preview image.
     [
       'meta',
@@ -75,6 +92,26 @@ export default defineConfig({
     ['meta', { name: 'twitter:card', content: 'summary_large_image' }],
     ['meta', { name: 'theme-color', content: '#0f766e' }],
   ],
+
+  transformHead({ pageData, title, description }) {
+    const url = pageUrl(pageData.relativePath);
+    const head: HeadConfig[] = [
+      ['link', { rel: 'canonical', href: url }],
+      ['meta', { property: 'og:url', content: url }],
+      ['meta', { property: 'og:title', content: title }],
+      ['meta', { property: 'og:description', content: description }],
+      ['meta', { name: 'twitter:title', content: title }],
+      ['meta', { name: 'twitter:description', content: description }],
+    ];
+    if (pageData.relativePath === 'index.md') {
+      head.push([
+        'script',
+        { type: 'application/ld+json' },
+        JSON.stringify(structuredData),
+      ]);
+    }
+    return head;
+  },
 
   lastUpdated: true,
   sitemap: { hostname: 'https://oxth.github.io/nestjs-storage/' },

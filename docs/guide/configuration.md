@@ -1,3 +1,7 @@
+---
+description: 'Configure StorageModule with forRoot or forRootAsync, set up multiple named disks with a default, and enable signed URLs for the local disk.'
+---
+
 # Configuration
 
 ## Async configuration

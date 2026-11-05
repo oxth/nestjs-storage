@@ -1,3 +1,7 @@
+---
+description: 'Store files on the local filesystem in NestJS: configure the local driver, public URLs, and HMAC-signed temporary URLs. No extra SDK required.'
+---
+
 # Local Filesystem
 
 ```ts

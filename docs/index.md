@@ -1,5 +1,8 @@
 ---
 layout: home
+title: 'NestJS Storage: file storage for S3, R2, GCS, Azure and local disk'
+titleTemplate: false
+description: 'One StorageService API for NestJS file storage and uploads: local disk, Amazon S3, Cloudflare R2, Google Cloud Storage, Azure Blob and any S3-compatible service.'
 
 hero:
   name: '@oxth/nestjs-storage'

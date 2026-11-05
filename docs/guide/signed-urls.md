@@ -1,3 +1,7 @@
+---
+description: 'Serve private files from the local disk with HMAC-signed, expiring URLs, verified by a NestJS guard or middleware, or by verifySignedUrl directly.'
+---
+
 # Signed URLs
 
 The `local` driver can hand out HMAC-signed, expiring URLs once `signSecret` is set on the module (see [Configuration](/guide/configuration#signed-urls)). Protect the route that serves those files with either the guard or the middleware — both share the same verification logic, so pick whichever fits your app.

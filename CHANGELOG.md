@@ -18,6 +18,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - Added a "Feature support" table to the Drivers overview showing which drivers support signed download/upload URLs, visibility, and CDN URLs.
 - Documented that `getSignedUploadUrl()` throws on the `local` disk, and corrected the R2 page: a `region` you pass is kept (only `visibility` and `supportsACL` are forced).
 - Added PNG icons, a `favicon.ico`, and a social preview image, plus a logo header in the README. `pnpm brand:build` regenerates them.
+- Fixed the config table on the Drivers overview page, which rendered as plain text.
+- SEO: every docs page now has its own meta description, canonical URL, and Open Graph / Twitter title, description and URL. Page titles end in "NestJS Storage", and the home page has structured data (JSON-LD) describing the library.
+- Clearer npm description and keywords (removed `encryption`, which the package doesn't offer).
 
 ## [0.2.0] - 2026-09-08
 
