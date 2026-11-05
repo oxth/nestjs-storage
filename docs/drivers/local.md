@@ -29,6 +29,8 @@ StorageModule.forRoot({
 
 Without `signSecret`, `getSignedUrl()` logs a warning and falls back to an unsigned URL — fine for local development, not for production. See [Signed URLs](/guide/signed-urls) for enforcing them on incoming requests with the guard/middleware.
 
+`getSignedUploadUrl()` is **not** supported on the local disk and throws — there's no server to accept a direct upload. Use one of the [upload interceptors](/guide/file-uploads) instead.
+
 ## No third-party SDK required
 
 `local` only depends on flydrive's `FSDriver`, which is a regular (not optional) dependency of this package — nothing extra to install.

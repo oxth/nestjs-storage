@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Social Card</title>
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600;700&family=JetBrains+Mono:wght@500&display=block"
+    />
+    <style>
+      html,
+      body {
+        margin: 0;
+        width: 1200px;
+        height: 630px;
+        overflow: hidden;
+      }
+      body {
+        position: relative;
+        box-sizing: border-box;
+        padding: 84px 96px;
+        background:
+          radial-gradient(
+            560px 420px at 1010px 120px,
+            rgba(45, 212, 191, 0.22),
+            transparent 70%
+          ),
+          radial-gradient(
+            480px 360px at 1120px 560px,
+            rgba(56, 189, 248, 0.14),
+            transparent 70%
+          ),
+          #0b1120;
+        color: #f8fafc;
+        font-family: 'IBM Plex Sans', sans-serif;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 22px;
+      }
+      .brand img {
+        width: 88px;
+        height: 88px;
+      }
+      .brand span {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 30px;
+        color: #94a3b8;
+      }
+      .brand b {
+        color: #5eead4;
+        font-weight: 500;
+      }
+      h1 {
+        margin: 56px 0 0;
+        font-size: 76px;
+        line-height: 1.05;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+      }
+      p {
+        margin: 22px 0 0;
+        max-width: 860px;
+        font-size: 30px;
+        line-height: 1.4;
+        color: #cbd5e1;
+      }
+      .disks {
+        position: absolute;
+        left: 96px;
+        bottom: 76px;
+        display: flex;
+        gap: 12px;
+      }
+      .disks span {
+        padding: 8px 20px;
+        border: 2px solid rgba(94, 234, 212, 0.35);
+        border-radius: 999px;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 24px;
+        color: #99f6e4;
+      }
+      .url {
+        position: absolute;
+        right: 96px;
+        bottom: 86px;
+        font-size: 24px;
+        color: #64748b;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="brand">
+      <img src="../../docs/public/favicon.svg" alt="" /><span
+        >@oxth/<b>nestjs-storage</b></span
+      >
+    </div>
+    <h1>Unified storage for NestJS</h1>
+    <p>
+      One StorageService for Local, S3, R2, GCS, Azure, and any
+      <span style="white-space: nowrap">S3-compatible</span> service.
+    </p>
+    <div class="disks">
+      <span>local</span><span>s3</span><span>r2</span><span>gcs</span
+      ><span>azure</span>
+    </div>
+    <div class="url">oxth.github.io/nestjs-storage</div>
+  </body>
+</html>
