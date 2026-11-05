@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Fixed
+
+- Upload interceptors no longer leave files behind when a request fails after they've stored them. Previously a file rejected by `ParseFilePipe` (e.g. with `FileExtensionValidator`), or uploaded to a route whose handler threw, stayed in storage. Files from a multi-file upload that failed partway through were also left behind. The interceptors now delete the files they stored in those cases. Set the new `removeOnError: false` interceptor option to keep the old behavior.
+
 ### Security
 
 - Raised the `multer` dependency to `^2.5.0`, which fixes a denial-of-service when a request is torn down while an async `fileFilter` is still pending ([GHSA-q7qp-rjg7-q26m](https://github.com/advisories/GHSA-q7qp-rjg7-q26m)). This affects every upload interceptor.
@@ -14,6 +18,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Documentation
 
+- README: centered header with a one-line summary and docs links, a Requirements line (Node.js 20+, NestJS 10–12), a link to the driver feature table, and missing imports in the upload examples. The file validation section no longer claims `ParseFilePipe` runs before the interceptor; it now shows `fileFilter` for rejecting files before they're stored.
+- Added `SECURITY.md` with how to report vulnerabilities privately.
 - Redesigned the docs site: new logo, teal theme, IBM Plex Sans / JetBrains Mono, an interactive code sample in the hero, and install + per-driver config sections on the home page.
 - Added a "Feature support" table to the Drivers overview showing which drivers support signed download/upload URLs, visibility, and CDN URLs.
 - Documented that `getSignedUploadUrl()` throws on the `local` disk, and corrected the R2 page: a `region` you pass is kept (only `visibility` and `supportsACL` are forced).

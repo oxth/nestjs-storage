@@ -292,6 +292,7 @@ interface StorageFileInterceptorOptions {
   namingStrategy?: NamingStrategy;  // default: StorageService.getNamingStrategy(disk)
   fileFilter?: (req: any, file: any, cb: any) => void;  // passed straight to multer
   limits?: { fileSize?: number; files?: number };        // passed straight to multer
+  removeOnError?: boolean;          // default true: delete stored files if the request fails afterwards
 }
 ```
 
@@ -316,6 +317,11 @@ StorageFilesFieldsInterceptor(fieldNames: string[], maxCount?: number, options?)
 ```
 
 All four: on a multer error, the error is passed through `@nestjs/platform-express`'s `transformException` (maps known multer/busboy error messages to `PayloadTooLargeException`/`BadRequestException`; otherwise passes the error through unchanged) and the promise rejects with it.
+
+All four, unless `removeOnError === false`:
+- If storing a file fails partway through a multi-file request, the files already stored in that request are deleted (`disk.delete`) and the storage error is re-thrown.
+- `next.handle()` is wrapped with `catchError`: if anything downstream errors (a pipe such as `ParseFilePipe`, or the route handler), the stored files are deleted first, then the original error is re-thrown.
+- Deletion failures are logged with `Logger('StorageInterceptor').warn` and never replace the original error.
 
 ```ts
 interface StoredFile {
@@ -344,7 +350,7 @@ class FileExtensionValidator extends FileValidator<FileExtensionValidatorOptions
 }
 ```
 
-A `@nestjs/common` `FileValidator` — pass it in `ParseFilePipe`'s `validators` array.
+A `@nestjs/common` `FileValidator` — pass it in `ParseFilePipe`'s `validators` array. Pipes run after interceptors, so the file is already stored when it validates; on rejection the interceptor removes it (see `removeOnError` above). To reject before storing, use the interceptor's `fileFilter` and pass an `HttpException` to its callback.
 
 ## Naming strategies
 
