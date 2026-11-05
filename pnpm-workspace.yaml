@@ -5,3 +5,11 @@ minimumReleaseAgeExclude:
   - '@aws-sdk/s3-presigned-post@3.1109.0 || 3.1152.0'
   - '@aws-sdk/s3-request-presigner@3.1109.0 || 3.1152.0'
   - globals@17.11.0
+# Security fixes for transitive dev dependencies whose parents haven't
+# released a version that picks them up yet. Each target stays inside the
+# parent's declared range. Remove an entry once the parent catches up.
+overrides:
+  # vitest's @vitest/mocker allows vite ^8; 8.1.6 fixes GHSA-587h-7wmj-h5pm and others.
+  'vite@>=8.0.0 <8.1.6': ^8.1.6
+  # postcss allows source-map-js ^1.2.1; 1.2.2 fixes GHSA-68fv-2mgg-jv7q.
+  'source-map-js@<1.2.2': ^1.2.2
