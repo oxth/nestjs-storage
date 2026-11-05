@@ -155,6 +155,14 @@ If `main` ever gets branch protection rules that block direct pushes, the "commi
 
 Pushing the tag is what triggers `publish.yml`. You don't need to manually edit `package.json`, commit it, or run `git tag` yourself — `pnpm version <bump>` is the entire release command.
 
+`publish.yml` also creates the GitHub release for the tag. Its notes come from that version's `CHANGELOG.md` section, built by [`scripts/release-notes.mjs`](scripts/release-notes.mjs). The script renames the headings for readers (Added → What's new, Changed → Improvements, Fixed → Bug fixes; Security, Removed and Documentation keep their names) and keeps any text above the first `###`, such as an upgrade note, at the top. Preview the notes before releasing with:
+
+```bash
+node scripts/release-notes.mjs 1.2.3
+```
+
+The notes are built *before* the npm publish step, so if step 1 was skipped and `CHANGELOG.md` has no section for the version, the workflow fails without publishing anything. If a release for the tag already exists (for example, one you wrote by hand), the workflow leaves it untouched. Tags with a pre-release suffix such as `v1.2.3-beta.1` are marked as pre-releases.
+
 If you ever push a tag some other way (bypassing `pnpm version`), publishing still works exactly the same — the workflow always derives the published version from the tag, not from whatever `package.json` happens to say.
 
 ## Documentation Site

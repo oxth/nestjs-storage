@@ -33,6 +33,13 @@ jobs:
 
       - run: pnpm build
 
+      # Runs before publishing on purpose: if CHANGELOG.md has no section for
+      # this version, the run fails here instead of publishing a release with
+      # no notes. See scripts/release-notes.mjs.
+      - name: Build release notes from CHANGELOG.md
+        if: startsWith(github.ref, 'refs/tags/')
+        run: node scripts/release-notes.mjs "$GITHUB_REF_NAME" > "$RUNNER_TEMP/release-notes.md"
+
       # `npm pkg set` only rewrites the field - unlike `pnpm version`, it never
       # runs preversion/postversion (package.json's hooks for the local
       # `pnpm version <bump>` release flow would otherwise re-run inside this
@@ -53,6 +60,27 @@ jobs:
 
       - name: Publish to npm
         run: npm publish --access public --provenance
+
+      # Leaves an existing release for this tag alone (one written by hand, or
+      # a re-run of this workflow), so edited notes are never overwritten.
+      - name: Create GitHub release
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
+            echo "Release $GITHUB_REF_NAME already exists; leaving it as is."
+            exit 0
+          fi
+          flags=()
+          if [[ "$GITHUB_REF_NAME" == *-* ]]; then
+            flags+=(--prerelease)
+          fi
+          gh release create "$GITHUB_REF_NAME" \
+            --title "$GITHUB_REF_NAME" \
+            --notes-file "$RUNNER_TEMP/release-notes.md" \
+            --verify-tag \
+            "${flags[@]}"
 
       # The version bump above only exists in this job's detached-HEAD
       # checkout of the tag - it was never committed anywhere. Reapply it on
