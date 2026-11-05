@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-11-05
+
+> **Upgrade note:** upload interceptors now delete the files they stored when the request fails afterwards (see Fixed). If your app relies on keeping those files, pass `removeOnError: false` to the interceptor.
+
+### Added
+
+- `removeOnError` option on all four upload interceptors (default `true`). Set it to `false` to keep stored files when a request fails.
+
+### Changed
+
+- Raised minimum dependency versions: `flydrive` to `^2.2.0` and `uuid` to `^14.0.3` (`multer` and `@nestjs/platform-express` are listed under Security).
+
 ### Fixed
 
 - Upload interceptors no longer leave files behind when a request fails after they've stored them. Previously a file rejected by `ParseFilePipe` (e.g. with `FileExtensionValidator`), or uploaded to a route whose handler threw, stayed in storage. Files from a multi-file upload that failed partway through were also left behind. The interceptors now delete the files they stored in those cases. Set the new `removeOnError: false` interceptor option to keep the old behavior.
@@ -109,7 +121,8 @@ Initial release.
 - `README.md`, `CONTRIBUTING.md`, and `llm.md`/`llm-full.md` (condensed and exhaustive API references).
 - CI: lint/test/build on every push and pull request; a tag-triggered (`v*`) publish workflow authenticated via npm's OIDC Trusted Publisher; a weekly scheduled dependency-update workflow that opens a pull request rather than pushing to `main` directly.
 
-[Unreleased]: https://github.com/oxth/nestjs-storage/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/oxth/nestjs-storage/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/oxth/nestjs-storage/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/oxth/nestjs-storage/compare/v0.1.8...v0.2.0
 [0.1.2]: https://github.com/oxth/nestjs-storage/compare/v0.1.0...v0.1.2
 [0.1.0]: https://github.com/oxth/nestjs-storage/releases/tag/v0.1.0
