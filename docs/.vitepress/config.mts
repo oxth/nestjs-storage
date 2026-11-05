@@ -12,7 +12,35 @@ export default defineConfig({
   base: '/nestjs-storage/',
 
   head: [
-    ['link', { rel: 'icon', href: '/nestjs-storage/favicon.svg' }],
+    // .ico first for browsers without SVG favicon support; SVG wins where supported.
+    [
+      'link',
+      { rel: 'icon', href: '/nestjs-storage/favicon.ico', sizes: '48x48' },
+    ],
+    [
+      'link',
+      {
+        rel: 'icon',
+        type: 'image/svg+xml',
+        href: '/nestjs-storage/favicon.svg',
+      },
+    ],
+    [
+      'link',
+      { rel: 'apple-touch-icon', href: '/nestjs-storage/apple-touch-icon.png' },
+    ],
+    ['link', { rel: 'preconnect', href: 'https://fonts.googleapis.com' }],
+    [
+      'link',
+      { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' },
+    ],
+    [
+      'link',
+      {
+        rel: 'stylesheet',
+        href: 'https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap',
+      },
+    ],
     ['meta', { property: 'og:title', content: '@oxth/nestjs-storage' }],
     [
       'meta',
@@ -23,15 +51,39 @@ export default defineConfig({
       },
     ],
     ['meta', { property: 'og:type', content: 'website' }],
-    ['meta', { name: 'twitter:card', content: 'summary' }],
-    ['meta', { name: 'theme-color', content: '#6366f1' }],
+    [
+      'meta',
+      { property: 'og:url', content: 'https://oxth.github.io/nestjs-storage/' },
+    ],
+    // Social platforms need an absolute URL for the preview image.
+    [
+      'meta',
+      {
+        property: 'og:image',
+        content: 'https://oxth.github.io/nestjs-storage/og-image.png',
+      },
+    ],
+    ['meta', { property: 'og:image:width', content: '1200' }],
+    ['meta', { property: 'og:image:height', content: '630' }],
+    [
+      'meta',
+      {
+        property: 'og:image:alt',
+        content: '@oxth/nestjs-storage — Unified storage for NestJS',
+      },
+    ],
+    ['meta', { name: 'twitter:card', content: 'summary_large_image' }],
+    ['meta', { name: 'theme-color', content: '#0f766e' }],
   ],
 
   lastUpdated: true,
+  sitemap: { hostname: 'https://oxth.github.io/nestjs-storage/' },
   cleanUrls: true,
 
   themeConfig: {
     siteTitle: 'NestJS Storage',
+    logo: '/favicon.svg',
+    outline: { level: [2, 3] },
 
     search: {
       provider: 'local',
@@ -53,8 +105,14 @@ export default defineConfig({
             text: 'Changelog',
             link: 'https://github.com/oxth/nestjs-storage/blob/main/CHANGELOG.md',
           },
-          { text: 'Releases', link: 'https://github.com/oxth/nestjs-storage/releases' },
-          { text: 'npm', link: 'https://www.npmjs.com/package/@oxth/nestjs-storage' },
+          {
+            text: 'Releases',
+            link: 'https://github.com/oxth/nestjs-storage/releases',
+          },
+          {
+            text: 'npm',
+            link: 'https://www.npmjs.com/package/@oxth/nestjs-storage',
+          },
         ],
       },
     ],
@@ -110,7 +168,9 @@ export default defineConfig({
       ],
     },
 
-    socialLinks: [{ icon: 'github', link: 'https://github.com/oxth/nestjs-storage' }],
+    socialLinks: [
+      { icon: 'github', link: 'https://github.com/oxth/nestjs-storage' },
+    ],
 
     footer: {
       message: 'Released under the MIT License.',

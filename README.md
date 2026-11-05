@@ -1,3 +1,9 @@
+<p align="center">
+  <a href="https://oxth.github.io/nestjs-storage/">
+    <img src="https://raw.githubusercontent.com/oxth/nestjs-storage/main/docs/public/logo.png" width="96" height="96" alt="@oxth/nestjs-storage logo">
+  </a>
+</p>
+
 # @oxth/nestjs-storage
 
 [![CI](https://github.com/oxth/nestjs-storage/actions/workflows/ci.yml/badge.svg)](https://github.com/oxth/nestjs-storage/actions/workflows/ci.yml)
