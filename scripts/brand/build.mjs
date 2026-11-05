@@ -65,6 +65,21 @@ function screenshot(source, out, width, height, { transparent = false } = {}) {
   );
 }
 
+// Headless Chrome won't make its viewport smaller than a few hundred pixels,
+// so opening an SVG directly scales it to that larger viewport and the
+// screenshot crops it. Instead, place the SVG at an exact pixel size in the
+// top-left corner of a page; the screenshot then captures exactly the icon.
+function renderSvg(svgPath, out, size, { transparent = true } = {}) {
+  const page = join(tmp, `render-${size}.html`);
+  writeFileSync(
+    page,
+    `<!doctype html><html><body style="margin:0;background:transparent">` +
+      `<img src="${pathToFileURL(svgPath).href}" width="${size}" height="${size}" style="display:block">` +
+      `</body></html>`,
+  );
+  screenshot(page, out, size, size, { transparent });
+}
+
 // An .ico file can hold PNG images directly: a 6-byte header, a 16-byte
 // directory entry per image, then the PNG bytes.
 function writeIco(out, pngs) {
@@ -93,9 +108,7 @@ function writeIco(out, pngs) {
 }
 
 try {
-  screenshot(logoSvg, join(publicDir, 'logo.png'), 256, 256, {
-    transparent: true,
-  });
+  renderSvg(logoSvg, join(publicDir, 'logo.png'), 256);
 
   // iOS rounds the corners itself, so the touch icon needs a full-bleed square.
   const squareSvg = join(tmp, 'square.svg');
@@ -103,11 +116,13 @@ try {
     squareSvg,
     readFileSync(logoSvg, 'utf8').replace(/ rx="15"/, ''),
   );
-  screenshot(squareSvg, join(publicDir, 'apple-touch-icon.png'), 180, 180);
+  renderSvg(squareSvg, join(publicDir, 'apple-touch-icon.png'), 180, {
+    transparent: false,
+  });
 
   const icoImages = [16, 32, 48].map((size) => {
     const png = join(tmp, `icon-${size}.png`);
-    screenshot(logoSvg, png, size, size, { transparent: true });
+    renderSvg(logoSvg, png, size);
     return { size, data: readFileSync(png) };
   });
   writeIco(join(publicDir, 'favicon.ico'), icoImages);
