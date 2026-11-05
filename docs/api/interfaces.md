@@ -131,6 +131,7 @@ interface StorageFileInterceptorOptions {
   namingStrategy?: NamingStrategy;
   fileFilter?: (req: any, file: any, cb: any) => void; // passed straight to multer
   limits?: { fileSize?: number; files?: number };       // passed straight to multer
+  removeOnError?: boolean; // default true: delete stored files if the request fails afterwards
 }
 ```
 

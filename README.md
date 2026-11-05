@@ -1,10 +1,10 @@
-<p align="center">
-  <a href="https://oxth.github.io/nestjs-storage/">
-    <img src="https://raw.githubusercontent.com/oxth/nestjs-storage/main/docs/public/logo.png" width="96" height="96" alt="@oxth/nestjs-storage logo">
-  </a>
-</p>
+<div align="center">
+
+<a href="https://oxth.github.io/nestjs-storage/"><img src="https://raw.githubusercontent.com/oxth/nestjs-storage/main/docs/public/logo.png" width="96" height="96" alt="@oxth/nestjs-storage logo"></a>
 
 # @oxth/nestjs-storage
+
+**One storage API for NestJS: local disk, S3, Cloudflare R2, Google Cloud Storage, Azure Blob and any S3-compatible service.**
 
 [![CI](https://github.com/oxth/nestjs-storage/actions/workflows/ci.yml/badge.svg)](https://github.com/oxth/nestjs-storage/actions/workflows/ci.yml)
 [![npm version](https://img.shields.io/npm/v/@oxth/nestjs-storage.svg)](https://www.npmjs.com/package/@oxth/nestjs-storage)
@@ -13,20 +13,25 @@
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/6419f4e8899d461c989e2f32233df028)](https://app.codacy.com/gh/oxth/nestjs-storage/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
 [![Codacy Badge](https://app.codacy.com/project/badge/Coverage/6419f4e8899d461c989e2f32233df028)](https://app.codacy.com/gh/oxth/nestjs-storage/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_coverage)
 
-A NestJS storage module with a single, unified API for Local filesystem, S3, Cloudflare R2, Google Cloud Storage, Azure Blob Storage, and any S3-compatible service (MinIO, Backblaze B2, DigitalOcean Spaces, Wasabi, ...). Built on top of [flydrive](https://flydrive.dev/).
+[Documentation](https://oxth.github.io/nestjs-storage/) · [Getting started](https://oxth.github.io/nestjs-storage/guide/) · [Drivers](https://oxth.github.io/nestjs-storage/drivers/) · [API reference](https://oxth.github.io/nestjs-storage/api/)
 
-**[Full documentation site](https://oxth.github.io/nestjs-storage/)**
+</div>
+
+Built on [flydrive](https://flydrive.dev/). S3-compatible services such as MinIO, Backblaze B2, DigitalOcean Spaces and Wasabi work through the `s3` driver.
 
 - One `StorageService` API regardless of which disk(s) you configure
 - Multiple named disks in the same app, with a configurable default
-- Multer-based upload interceptors that stream files straight to a disk
+- Multer-based upload interceptors that stream files straight to a disk, and remove them again if validation or the handler fails
 - Pluggable file naming strategies (UUID, hash, original name, date path)
-- Signed URLs for the local disk, enforced via a `Guard` or a `Middleware`
+- Signed download and upload URLs (S3/R2/GCS presigning, Azure SAS, CloudFront), plus HMAC-signed local URLs checked by a `Guard` or `Middleware`
+- Cloud SDKs are optional and only loaded for the drivers you configure
 - A built-in fake disk for tests, backed by the real filesystem
 
 > Pointing an AI coding assistant at this package? [`llm.md`](./llm.md) is a condensed API reference and [`llm-full.md`](./llm-full.md) is the exhaustive one — both are more token-efficient than this README for that purpose.
 
 ## Installation
+
+**Requirements:** Node.js 20+ and NestJS 10, 11 or 12.
 
 ```bash
 npm install @oxth/nestjs-storage
@@ -147,6 +152,8 @@ Every entry under `disks` has a `driver` name and a driver-specific `config`. Th
 | `r2`    | `{ bucket, endpoint, credentials, region? }`    | Cloudflare R2 — same as `s3` with the right defaults baked in.        |
 | `gcs`   | `{ bucket, ... }`                               | Google Cloud Storage.                                                 |
 | `azure` | `{ containerName, accountName, accountKey }` or `{ containerName, connectionString }` | Azure Blob Storage. |
+
+Not every backend supports every feature (signed upload URLs, per-file visibility, CDN URLs). See the [feature support table](https://oxth.github.io/nestjs-storage/drivers/#feature-support) for a per-driver breakdown.
 
 ### Local
 
@@ -324,7 +331,7 @@ A driver factory just needs to return an object implementing flydrive's `DriverC
 
 ## File uploads
 
-Four interceptor factories cover the common upload shapes. Each accepts an options object: `{ disk?, path?, namingStrategy?, fileFilter?, limits? }`.
+Four interceptor factories cover the common upload shapes. Each accepts an options object: `{ disk?, path?, namingStrategy?, fileFilter?, limits?, removeOnError? }`.
 
 | Interceptor | Multer equivalent | Where the result ends up |
 | --- | --- | --- |
@@ -370,6 +377,7 @@ export class AvatarsController {
 
 ```ts
 import { UploadedFiles } from '@nestjs/common';
+import { StorageFilesInterceptor, StoredFile } from '@oxth/nestjs-storage';
 
 @Post()
 @UseInterceptors(StorageFilesInterceptor('photos', 10))
@@ -399,6 +407,12 @@ upload(
 ### Multiple files per named field
 
 ```ts
+import {
+  StorageFilesFieldsInterceptor,
+  StoredFile,
+  UploadedFileFields,
+} from '@oxth/nestjs-storage';
+
 @Post()
 @UseInterceptors(StorageFilesFieldsInterceptor(['photos', 'documents'], 5))
 upload(@UploadedFileFields('photos') photos: StoredFile[]) {
@@ -415,12 +429,13 @@ StorageFileInterceptor('avatar', {
   namingStrategy: HashNamingStrategy,
   limits: { fileSize: 5 * 1024 * 1024 },
   fileFilter: (req, file, cb) => cb(null, file.mimetype.startsWith('image/')),
+  removeOnError: true, // default: delete stored files if the request fails afterwards
 });
 ```
 
 ### File validation
 
-`FileExtensionValidator` is a `@nestjs/common` `FileValidator` you can drop into `ParseFilePipe` to reject uploads by extension before they ever reach an interceptor:
+`FileExtensionValidator` is a `@nestjs/common` `FileValidator` you can drop into `ParseFilePipe` to reject uploads by extension:
 
 ```ts
 import { ParseFilePipe, UploadedFile } from '@nestjs/common';
@@ -431,7 +446,7 @@ import { FileExtensionValidator } from '@oxth/nestjs-storage';
 upload(
   @UploadedFile(
     new ParseFilePipe({
-      validators: [new FileExtensionValidator({ allowedExtensions: ['.png', '.jpg', 'jpeg'] })],
+      validators: [new FileExtensionValidator({ allowedExtensions: ['.png', '.jpg', '.jpeg'] })],
     }),
   )
   avatar: StoredFile,
@@ -441,6 +456,23 @@ upload(
 ```
 
 Extensions are matched case-insensitively against `path.extname(file.originalname)`; the leading dot is optional in `allowedExtensions`.
+
+NestJS runs pipes *after* interceptors, so by the time `ParseFilePipe` runs, the file is already stored. If validation fails, or the route handler throws, the interceptor deletes the files it stored before the error response goes out (set `removeOnError: false` to keep them).
+
+To reject a file before it's stored at all, and skip uploading it to your bucket, use the interceptor's `fileFilter` instead. Pass an error to the callback to respond with it:
+
+```ts
+import { BadRequestException } from '@nestjs/common';
+
+@UseInterceptors(
+  StorageFileInterceptor('avatar', {
+    fileFilter: (req, file, cb) =>
+      /\.(png|jpe?g)$/i.test(file.originalname)
+        ? cb(null, true)
+        : cb(new BadRequestException('Only .png and .jpg files are allowed'), false),
+  }),
+)
+```
 
 ## Naming strategies
 
@@ -521,6 +553,10 @@ While a disk is faked, every `StorageService` call for that disk name (`.put`, `
 ## Contributing
 
 See [CONTRIBUTING.md](./CONTRIBUTING.md) for local setup, testing conventions, and how to add a driver or naming strategy. See [CHANGELOG.md](./CHANGELOG.md) for release history.
+
+## Security
+
+Found a vulnerability? Please report it privately. See [SECURITY.md](./SECURITY.md).
 
 ## License
 

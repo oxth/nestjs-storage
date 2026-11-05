@@ -17,6 +17,7 @@ import { StorageFileInterceptorOptions } from 'src/interfaces';
 import { transformException } from '@nestjs/platform-express/multer/multer/multer.utils.js';
 import { StoredFile } from 'src/interfaces/stored-file';
 import { generateFileName } from 'src/helpers';
+import { removeStoredFiles, removeStoredFilesOnError } from './upload-cleanup';
 
 export function StorageFilesInterceptor(
   fieldName: string,
@@ -59,21 +60,36 @@ export function StorageFilesInterceptor(
         this.storageService.getNamingStrategy(diskName);
 
       const storedFiles: StoredFile[] = [];
-      for (const file of req.files as Express.Multer.File[]) {
-        const storedPath = await generateFileName(strategy, file, options.path);
-        await disk.put(storedPath, file.buffer);
+      const storedPaths: string[] = [];
+      try {
+        for (const file of req.files as Express.Multer.File[]) {
+          const storedPath = await generateFileName(
+            strategy,
+            file,
+            options.path,
+          );
+          await disk.put(storedPath, file.buffer);
+          storedPaths.push(storedPath);
 
-        storedFiles.push({
-          disk: diskName,
-          path: storedPath,
-          mimetype: file.mimetype,
-          size: file.size,
-          originalname: file.originalname,
-        });
+          storedFiles.push({
+            disk: diskName,
+            path: storedPath,
+            mimetype: file.mimetype,
+            size: file.size,
+            originalname: file.originalname,
+          });
+        }
+      } catch (err) {
+        // A later file failed to store: don't leave the earlier ones behind.
+        if (options.removeOnError !== false) {
+          await removeStoredFiles(disk, storedPaths);
+        }
+        throw err;
       }
 
       req.files = storedFiles as unknown as Express.Multer.File[];
-      return next.handle();
+      if (options.removeOnError === false) return next.handle();
+      return removeStoredFilesOnError(next.handle(), disk, storedPaths);
     }
 
     private runMulter(req: Request, res: Response): Promise<void> {

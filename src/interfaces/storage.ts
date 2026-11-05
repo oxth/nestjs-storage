@@ -43,6 +43,12 @@ export interface StorageFileInterceptorOptions {
   path?: string;
   /** Naming strategy for the uploaded file. Defaults to UuidNamingStrategy. */
   namingStrategy?: NamingStrategy;
+  /**
+   * Delete the files this interceptor stored when the request fails afterwards
+   * (a pipe such as `ParseFilePipe` rejects them, or the route handler throws),
+   * or when storing a later file in the same request fails. Defaults to `true`.
+   */
+  removeOnError?: boolean;
   /** Multer fileFilter function */
 
   fileFilter?: (req: any, file: any, cb: any) => void;

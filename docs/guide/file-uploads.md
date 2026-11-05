@@ -4,7 +4,7 @@ description: 'Stream NestJS file uploads straight to S3, R2, GCS, Azure or local
 
 # File Uploads
 
-Four interceptor factories cover the common upload shapes. Each accepts an options object: `{ disk?, path?, namingStrategy?, fileFilter?, limits? }`.
+Four interceptor factories cover the common upload shapes. Each accepts an options object: `{ disk?, path?, namingStrategy?, fileFilter?, limits?, removeOnError? }`.
 
 | Interceptor | Multer equivalent | Where the result ends up |
 | --- | --- | --- |
@@ -50,6 +50,7 @@ export class AvatarsController {
 
 ```ts
 import { UploadedFiles } from '@nestjs/common';
+import { StorageFilesInterceptor, StoredFile } from '@oxth/nestjs-storage';
 
 @Post()
 @UseInterceptors(StorageFilesInterceptor('photos', 10))
@@ -79,6 +80,12 @@ upload(
 ## Multiple files per named field
 
 ```ts
+import {
+  StorageFilesFieldsInterceptor,
+  StoredFile,
+  UploadedFileFields,
+} from '@oxth/nestjs-storage';
+
 @Post()
 @UseInterceptors(StorageFilesFieldsInterceptor(['photos', 'documents'], 5))
 upload(@UploadedFileFields('photos') photos: StoredFile[]) {
@@ -95,6 +102,7 @@ StorageFileInterceptor('avatar', {
   namingStrategy: HashNamingStrategy,
   limits: { fileSize: 5 * 1024 * 1024 },
   fileFilter: (req, file, cb) => cb(null, file.mimetype.startsWith('image/')),
+  removeOnError: true, // default: delete stored files if the request fails afterwards
 });
 ```
 
@@ -102,7 +110,7 @@ On a Multer error (file too large, too many files, ...), the promise rejects wit
 
 ## File validation
 
-`FileExtensionValidator` is a `@nestjs/common` `FileValidator` you can drop into `ParseFilePipe` to reject uploads by extension before they ever reach an interceptor:
+`FileExtensionValidator` is a `@nestjs/common` `FileValidator` you can drop into `ParseFilePipe` to reject uploads by extension:
 
 ```ts
 import { ParseFilePipe, UploadedFile } from '@nestjs/common';
@@ -113,7 +121,7 @@ import { FileExtensionValidator } from '@oxth/nestjs-storage';
 upload(
   @UploadedFile(
     new ParseFilePipe({
-      validators: [new FileExtensionValidator({ allowedExtensions: ['.png', '.jpg', 'jpeg'] })],
+      validators: [new FileExtensionValidator({ allowedExtensions: ['.png', '.jpg', '.jpeg'] })],
     }),
   )
   avatar: StoredFile,
@@ -123,3 +131,20 @@ upload(
 ```
 
 Extensions are matched case-insensitively against `path.extname(file.originalname)`; the leading dot is optional in `allowedExtensions`.
+
+NestJS runs pipes *after* interceptors, so by the time `ParseFilePipe` runs, the file is already stored. If validation fails, or the route handler throws, the interceptor deletes the files it stored before the error response goes out (set `removeOnError: false` to keep them).
+
+To reject a file before it's stored at all, and skip uploading it to your bucket, use the interceptor's `fileFilter` instead. Pass an error to the callback to respond with it:
+
+```ts
+import { BadRequestException } from '@nestjs/common';
+
+@UseInterceptors(
+  StorageFileInterceptor('avatar', {
+    fileFilter: (req, file, cb) =>
+      /\.(png|jpe?g)$/i.test(file.originalname)
+        ? cb(null, true)
+        : cb(new BadRequestException('Only .png and .jpg files are allowed'), false),
+  }),
+)
+```

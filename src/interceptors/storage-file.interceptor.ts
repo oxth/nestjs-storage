@@ -17,6 +17,7 @@ import { StorageFileInterceptorOptions } from 'src/interfaces';
 import { transformException } from '@nestjs/platform-express/multer/multer/multer.utils.js';
 import { StoredFile } from 'src/interfaces/stored-file';
 import { generateFileName } from 'src/helpers';
+import { removeStoredFilesOnError } from './upload-cleanup';
 
 export function StorageFileInterceptor(
   fieldName: string,
@@ -70,7 +71,8 @@ export function StorageFileInterceptor(
       };
 
       req.file = storedFile as unknown as Express.Multer.File;
-      return next.handle();
+      if (options.removeOnError === false) return next.handle();
+      return removeStoredFilesOnError(next.handle(), disk, [storedPath]);
     }
 
     private runMulter(req: Request, res: Response): Promise<void> {

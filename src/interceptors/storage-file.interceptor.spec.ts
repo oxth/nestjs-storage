@@ -1,3 +1,4 @@
+import { firstValueFrom, of, throwError } from 'rxjs';
 import type { Request, Response } from 'express';
 import type { ExecutionContext } from '@nestjs/common';
 import multer from 'multer';
@@ -31,14 +32,15 @@ function buildContext(req: Partial<Request>): {
 
 function buildStorageService(overrides: Partial<StorageService> = {}) {
   const put = vi.fn().mockResolvedValue(undefined);
-  const disk = vi.fn().mockReturnValue({ put });
+  const remove = vi.fn().mockResolvedValue(undefined);
+  const disk = vi.fn().mockReturnValue({ put, delete: remove });
   const service = {
     getDefaultDisk: vi.fn().mockReturnValue('local'),
     disk,
     getNamingStrategy: vi.fn().mockReturnValue(UuidNamingStrategy),
     ...overrides,
   } as unknown as StorageService;
-  return { service, disk, put };
+  return { service, disk, put, remove };
 }
 
 describe('StorageFileInterceptor', () => {
@@ -93,7 +95,7 @@ describe('StorageFileInterceptor', () => {
     const interceptor = new InterceptorClass(service as any);
 
     const { ctx } = buildContext({});
-    const callHandler = { handle: vi.fn() };
+    const callHandler = { handle: vi.fn(() => of(undefined)) };
 
     await expect(
       interceptor.intercept(ctx, callHandler as any),
@@ -118,7 +120,7 @@ describe('StorageFileInterceptor', () => {
 
     const { ctx, req } = buildContext({});
     const handleResult = Symbol('next');
-    const callHandler = { handle: vi.fn().mockReturnValue(handleResult) };
+    const callHandler = { handle: vi.fn().mockReturnValue(of(handleResult)) };
 
     const result = await interceptor.intercept(ctx, callHandler as any);
 
@@ -131,7 +133,7 @@ describe('StorageFileInterceptor', () => {
       originalname: 'photo.png',
     });
     expect((req.file as any).path).toMatch(/\.png$/);
-    expect(result).toBe(handleResult);
+    await expect(firstValueFrom(result)).resolves.toBe(handleResult);
   });
 
   it('honors the disk, path, and namingStrategy options', async () => {
@@ -156,12 +158,61 @@ describe('StorageFileInterceptor', () => {
     const interceptor = new InterceptorClass(service as any);
 
     const { ctx, req } = buildContext({});
-    await interceptor.intercept(ctx, { handle: vi.fn() } as any);
+    await interceptor.intercept(ctx, {
+      handle: vi.fn(() => of(undefined)),
+    } as any);
 
     expect(disk).toHaveBeenCalledWith('s3');
     expect(customStrategy).toHaveBeenCalledWith(file.buffer, 'photo.png');
     expect(put).toHaveBeenCalledWith('avatars/custom-name.png', file.buffer);
     expect((req.file as any).disk).toBe('s3');
     expect((req.file as any).path).toBe('avatars/custom-name.png');
+  });
+});
+
+describe('StorageFileInterceptor cleanup on failure', () => {
+  beforeEach(() => {
+    singleMock.mockReset();
+    singleMock.mockReturnValue((req: any, _res: Response, cb: any) => {
+      req.file = {
+        buffer: Buffer.from('a'),
+        originalname: 'a.png',
+        mimetype: 'image/png',
+        size: 1,
+      };
+      cb();
+    });
+  });
+
+  it('removes the stored file(s) and re-throws when a pipe or the handler fails', async () => {
+    const { service, put, remove } = buildStorageService();
+    const interceptor = new (StorageFileInterceptor('avatar'))(service as any);
+    const error = new Error('validation failed');
+
+    const { ctx } = buildContext({});
+    const result = await interceptor.intercept(ctx, {
+      handle: vi.fn(() => throwError(() => error)),
+    } as any);
+
+    await expect(firstValueFrom(result)).rejects.toBe(error);
+    expect(put).toHaveBeenCalledTimes(1);
+    const storedPaths = put.mock.calls.map(([path]) => path);
+    expect(remove.mock.calls.map(([path]) => path)).toEqual(storedPaths);
+  });
+
+  it('keeps the stored file(s) when removeOnError is false', async () => {
+    const { service, remove } = buildStorageService();
+    const interceptor = new (StorageFileInterceptor('avatar', {
+      removeOnError: false,
+    }))(service as any);
+    const error = new Error('validation failed');
+
+    const { ctx } = buildContext({});
+    const result = await interceptor.intercept(ctx, {
+      handle: vi.fn(() => throwError(() => error)),
+    } as any);
+
+    await expect(firstValueFrom(result)).rejects.toBe(error);
+    expect(remove).not.toHaveBeenCalled();
   });
 });

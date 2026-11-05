@@ -75,7 +75,7 @@ StorageFileFieldsInterceptor(fields, options?)        // req.files: Record<field
 StorageFilesFieldsInterceptor(fields, maxCount?, options?) // req.files: Record<field, StoredFile[]>
 ```
 
-`options`: `{ disk?, path?, namingStrategy?, fileFilter?, limits? }`. Read fields-based results with `@UploadedFileFields('name')`.
+`options`: `{ disk?, path?, namingStrategy?, fileFilter?, limits?, removeOnError? }`. Read fields-based results with `@UploadedFileFields('name')`.
 
 ```ts
 interface StoredFile { disk: string; path: string; size: number; mimetype: string; originalname: string }
@@ -84,6 +84,8 @@ interface StoredFile { disk: string; path: string; size: number; mimetype: strin
 ## File validation
 
 `FileExtensionValidator({ allowedExtensions })` is a `@nestjs/common` `FileValidator` for use with `ParseFilePipe`; rejects a file unless `path.extname(file.originalname)` (case-insensitive) is in `allowedExtensions` (leading dot optional).
+
+Pipes such as `ParseFilePipe` run after the interceptor, so files are already stored when they validate. By default (`removeOnError` not `false`) the interceptor deletes the files it stored if anything after it fails (a pipe rejects, the handler throws), or if storing a later file in the same request fails. Use `fileFilter` to reject a file before it's stored.
 
 ## Naming strategies
 
