@@ -1,6 +1,6 @@
 {
   "name": "@oxth/nestjs-storage",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "NestJS storage module with one API for local disk, Amazon S3, Cloudflare R2, Google Cloud Storage, Azure Blob and S3-compatible services",
   "author": "OxTH",
   "license": "MIT",
