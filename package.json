@@ -77,7 +77,8 @@
     "docs:preview": "vitepress preview docs",
     "prepublishOnly": "pnpm build",
     "preversion": "pnpm lint && pnpm test:cov",
-    "postversion": "git push --follow-tags"
+    "postversion": "git push --follow-tags",
+    "brand:build": "node scripts/brand/build.mjs"
   },
   "dependencies": {
     "@nestjs/platform-express": "^12.3.2",

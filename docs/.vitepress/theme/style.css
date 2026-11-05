@@ -1,0 +1,227 @@
+/**
+ * Theme tokens for the docs site.
+ * Brand: teal. Light-mode brand-1 (#0f766e) is 5.5:1 on white;
+ * dark-mode brand-1 (#5eead4) is 11:1 on the dark background.
+ */
+
+:root {
+  --vp-font-family-base:
+    'IBM Plex Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI',
+    Roboto, sans-serif;
+  --vp-font-family-mono:
+    'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    monospace;
+
+  --vp-c-brand-1: #0f766e;
+  --vp-c-brand-2: #115e59;
+  --vp-c-brand-3: #0f766e;
+  --vp-c-brand-soft: rgba(13, 148, 136, 0.14);
+
+  --vp-button-brand-bg: #0f766e;
+  --vp-button-brand-hover-bg: #115e59;
+  --vp-button-brand-active-bg: #134e4a;
+  --vp-button-brand-text: #ffffff;
+  --vp-button-brand-hover-text: #ffffff;
+  --vp-button-brand-active-text: #ffffff;
+
+  --vp-home-hero-name-color: transparent;
+  --vp-home-hero-name-background: linear-gradient(
+    115deg,
+    #0f766e 20%,
+    #0e7490 80%
+  );
+  --vp-home-hero-image-background-image: linear-gradient(
+    135deg,
+    #2dd4bf 30%,
+    #38bdf8 70%
+  );
+  --vp-home-hero-image-filter: blur(56px);
+
+  /* Hero code card: an editor-style dark card in both color modes. */
+  --ns-code-bg: #0b1220;
+  --ns-code-border: rgba(148, 163, 184, 0.18);
+  --ns-code-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.08), 0 24px 48px -16px rgba(15, 23, 42, 0.35);
+  --ns-code-fg: #e2e8f0;
+  --ns-code-muted: #94a3b8;
+  --ns-code-dot: #334155;
+  --ns-code-kw: #c4b5fd;
+  --ns-code-fn: #7dd3fc;
+  --ns-code-str: #5eead4;
+  --ns-code-dec: #fda4af;
+  --ns-code-type: #fcd34d;
+  --ns-code-highlight: rgba(45, 212, 191, 0.16);
+}
+
+.dark {
+  --vp-c-brand-1: #5eead4;
+  --vp-c-brand-2: #2dd4bf;
+  --vp-c-brand-3: #0f766e;
+  --vp-c-brand-soft: rgba(45, 212, 191, 0.16);
+
+  --vp-c-bg: #0b1120;
+  --vp-c-bg-alt: #080d19;
+  --vp-c-bg-elv: #111a2e;
+  --vp-c-bg-soft: #111a2e;
+
+  --vp-home-hero-name-background: linear-gradient(
+    115deg,
+    #5eead4 20%,
+    #7dd3fc 80%
+  );
+  --vp-home-hero-image-filter: blur(72px);
+
+  --ns-code-bg: #0f172a;
+  --ns-code-border: rgba(148, 163, 184, 0.2);
+  --ns-code-shadow:
+    0 0 0 1px rgba(45, 212, 191, 0.06), 0 24px 48px -16px rgba(0, 0, 0, 0.6);
+}
+
+/* ---------- Hero ---------- */
+
+.VPHero .image-bg {
+  opacity: 0.35;
+}
+
+.dark .VPHero .image-bg {
+  opacity: 0.25;
+}
+
+.VPHero .tagline {
+  text-wrap: pretty;
+}
+
+/* Below 960px the default hero image box is a fixed 320–392px square meant
+   for a logo. The code card needs its natural height, after the text. */
+@media (max-width: 959px) {
+  .VPHero.has-image .image {
+    order: 3;
+    margin: 40px 0 0;
+  }
+
+  .VPHero.has-image .image-container {
+    width: 100%;
+    height: auto;
+  }
+
+  .VPHero.has-image .hero-code {
+    margin: 0 auto;
+  }
+}
+
+/* ---------- Feature cards ---------- */
+
+.VPFeature {
+  transition:
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.VPFeature.link:hover {
+  border-color: var(--vp-c-brand-1);
+}
+
+.VPFeature .icon {
+  background-color: var(--vp-c-brand-soft);
+  color: var(--vp-c-brand-1);
+}
+
+.VPFeature .details {
+  text-wrap: pretty;
+}
+
+/* ---------- Home content sections ---------- */
+
+.ns-home {
+  max-width: 1152px;
+  margin: 0 auto;
+}
+
+.ns-home .ns-section {
+  margin: 0 auto;
+  padding: 56px 0 8px;
+}
+
+.ns-home .ns-eyebrow {
+  margin: 0 0 8px;
+  font-family: var(--vp-font-family-mono);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--vp-c-brand-1);
+}
+
+.vp-doc.ns-home h2,
+.ns-home h2 {
+  margin: 0 0 12px;
+  padding: 0;
+  border-top: 0;
+  font-size: 28px;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+
+.ns-home .ns-lead {
+  max-width: 640px;
+  margin: 0 0 24px;
+  font-size: 17px;
+  color: var(--vp-c-text-2);
+  text-wrap: pretty;
+}
+
+.ns-home .ns-cta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 64px 0 24px;
+  padding: 28px 32px;
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 14px;
+  background: var(--vp-c-bg-soft);
+}
+
+.ns-home .ns-cta p {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--vp-c-text-1);
+}
+
+.vp-doc .ns-cta a.ns-button {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 20px;
+  border-radius: 22px;
+  background: var(--vp-button-brand-bg);
+  color: var(--vp-button-brand-text);
+  font-weight: 600;
+  text-decoration: none;
+  transition: background-color 0.2s ease;
+}
+
+.vp-doc .ns-cta a.ns-button:hover {
+  background: var(--vp-button-brand-hover-bg);
+}
+
+/* ---------- Accessibility ---------- */
+
+:where(a, button, input, [tabindex]):focus-visible {
+  outline: 2px solid var(--vp-c-brand-1);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

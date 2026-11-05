@@ -12,6 +12,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - Raised the `multer` dependency to `^2.5.0`, which fixes a denial-of-service when a request is torn down while an async `fileFilter` is still pending ([GHSA-q7qp-rjg7-q26m](https://github.com/advisories/GHSA-q7qp-rjg7-q26m)). This affects every upload interceptor.
 - Raised `@nestjs/platform-express` to `^12.3.2`. Express's own ranges already allow the patched `body-parser`, `proxy-addr` and `qs` releases, so a fresh install picks them up; if your lockfile pins older ones, run your package manager's update.
 
+### Documentation
+
+- Redesigned the docs site: new logo, teal theme, IBM Plex Sans / JetBrains Mono, an interactive code sample in the hero, and install + per-driver config sections on the home page.
+- Added a "Feature support" table to the Drivers overview showing which drivers support signed download/upload URLs, visibility, and CDN URLs.
+- Documented that `getSignedUploadUrl()` throws on the `local` disk, and corrected the R2 page: a `region` you pass is kept (only `visibility` and `supportsACL` are forced).
+- Added PNG icons, a `favicon.ico`, and a social preview image, plus a logo header in the README. `pnpm brand:build` regenerates them.
+
 ## [0.2.0] - 2026-09-08
 
 ### Added

@@ -169,6 +169,8 @@ pnpm docs:dev
 
 When you add or rename a page, update the sidebar in `docs/.vitepress/config.mts` to match.
 
+The theme (colors, fonts, the hero code sample) lives in `docs/.vitepress/theme/`. The logo source is `docs/public/favicon.svg` and the social preview card is `scripts/brand/og-image.html`. After editing either, run `pnpm brand:build` to regenerate the PNG icons, `favicon.ico`, and `og-image.png` in `docs/public/`, and commit the results. It needs a local Chrome or Chromium; set `CHROME_PATH` if it isn't found.
+
 ## Reporting Issues
 
 Open an issue at https://github.com/oxth/nestjs-storage/issues, including:
